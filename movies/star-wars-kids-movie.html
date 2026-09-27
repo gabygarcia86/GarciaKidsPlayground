@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111">
+  <title>Star Wars Kids Movie</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      background: #111;
+    }
+
+    body {
+      display: grid;
+      min-height: 100vh;
+      place-items: center;
+    }
+
+    video {
+      display: block;
+      width: min(100vw, 160vh);
+      max-height: 100vh;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+  <video controls playsinline preload="metadata">
+    <source src="StarWarsKidsMovie_LowRes.mp4" type="video/mp4">
+    Your browser does not support HTML video.
+  </video>
+</body>
+</html>

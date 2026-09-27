@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#8fdef7">
+  <meta name="description" content="Garcia Kids Playground — games and movies for the kids.">
+  <title>Garcia Kids Playground</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="playground">
+    <header class="masthead">
+      <h1 class="sr-only">Garcia Kids Playground</h1>
+      <img class="title-art" src="assets/Title_GarciaKidsPlayground.png" alt="" width="882" height="271">
+    </header>
+
+    <div class="panels">
+      <section class="panel panel--games" aria-labelledby="games-heading">
+        <h2 id="games-heading">Games</h2>
+        <div class="button-list" id="games-list"></div>
+      </section>
+
+      <section class="panel panel--movies" aria-labelledby="movies-heading">
+        <h2 id="movies-heading">Movies</h2>
+        <div class="button-list" id="movies-list"></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

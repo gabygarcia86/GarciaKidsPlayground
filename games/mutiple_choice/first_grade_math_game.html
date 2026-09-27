@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Math Adventure!</title>
+  <style>
+    :root{
+      --bg1:#c8f1ff;
+      --bg2:#fff1b8;
+      --card:#ffffff;
+      --ink:#24324a;
+      --blue:#5b8def;
+      --purple:#8d6de8;
+      --pink:#ff7fb1;
+      --yellow:#ffd85a;
+      --green:#2fbd72;
+      --green-dark:#178b4c;
+      --red:#ef5350;
+      --red-dark:#c43d3a;
+      --shadow:0 16px 40px rgba(36,50,74,.16);
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:"Trebuchet MS","Arial Rounded MT Bold",Arial,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 10% 12%, rgba(255,255,255,.9) 0 4%, transparent 4.3%),
+        radial-gradient(circle at 85% 14%, rgba(255,255,255,.7) 0 3%, transparent 3.3%),
+        radial-gradient(circle at 20% 82%, rgba(255,255,255,.6) 0 3%, transparent 3.3%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:24px;
+      overflow-x:hidden;
+    }
+
+    .app{
+      width:min(760px,100%);
+      position:relative;
+    }
+
+    .card{
+      background:rgba(255,255,255,.96);
+      border:4px solid rgba(255,255,255,.95);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:28px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card::before,
+    .card::after{
+      content:"";
+      position:absolute;
+      width:120px;
+      height:120px;
+      border-radius:50%;
+      opacity:.14;
+      z-index:0;
+    }
+
+    .card::before{
+      background:var(--pink);
+      top:-45px;
+      left:-35px;
+    }
+
+    .card::after{
+      background:var(--blue);
+      bottom:-55px;
+      right:-35px;
+    }
+
+    .content{position:relative;z-index:1}
+
+    h1,h2,p{margin-top:0}
+
+    .title{
+      text-align:center;
+      font-size:clamp(2rem,6vw,3.5rem);
+      margin-bottom:8px;
+      color:#4b5cc4;
+      text-shadow:0 3px 0 #fff;
+    }
+
+    .subtitle{
+      text-align:center;
+      font-size:1.08rem;
+      margin-bottom:24px;
+    }
+
+    .topbar{
+      display:flex;
+      gap:12px;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:22px;
+    }
+
+    .pill{
+      background:#eef4ff;
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:.95rem;
+    }
+
+    .score-pill{
+      background:#ecfff4;
+      color:#177b48;
+    }
+
+    .progress-wrap{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background:#edf0f6;
+      overflow:hidden;
+      margin-top:6px;
+    }
+
+    .progress{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));
+      transition:width .3s ease;
+    }
+
+    .question-label{
+      text-align:center;
+      font-size:1rem;
+      color:#667085;
+      font-weight:800;
+      margin-bottom:10px;
+    }
+
+    .problem{
+      text-align:center;
+      font-size:clamp(3.2rem,12vw,6rem);
+      font-weight:900;
+      letter-spacing:2px;
+      margin:12px 0 26px;
+      color:#2f3d62;
+    }
+
+    .answers{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:14px;
+    }
+
+    .answer-btn{
+      border:0;
+      border-radius:20px;
+      padding:20px 14px;
+      font-size:clamp(1.5rem,6vw,2.2rem);
+      font-weight:900;
+      color:#26324d;
+      background:#f7f9ff;
+      box-shadow:0 6px 0 #dce3f6;
+      cursor:pointer;
+      transition:transform .12s ease, box-shadow .12s ease, background .2s ease, color .2s ease;
+      outline:none;
+    }
+
+    .answer-btn:nth-child(1){background:#fff1f6;box-shadow:0 6px 0 #ffd4e4}
+    .answer-btn:nth-child(2){background:#eef8ff;box-shadow:0 6px 0 #cdeaff}
+    .answer-btn:nth-child(3){background:#fff9df;box-shadow:0 6px 0 #ffec9e}
+    .answer-btn:nth-child(4){background:#f0fff3;box-shadow:0 6px 0 #c9f2d2}
+
+    .answer-btn:hover:not(:disabled){
+      transform:translateY(-2px);
+    }
+
+    .answer-btn:active:not(:disabled){
+      transform:translateY(3px);
+      box-shadow:0 2px 0 #dce3f6;
+    }
+
+    .answer-btn.correct{
+      background:var(--green)!important;
+      color:#fff;
+      box-shadow:0 6px 0 var(--green-dark)!important;
+    }
+
+    .answer-btn.wrong{
+      background:var(--red)!important;
+      color:#fff;
+      box-shadow:0 6px 0 var(--red-dark)!important;
+    }
+
+    .answer-btn.correct-outline{
+      background:#fff!important;
+      color:var(--green-dark);
+      border:5px solid var(--green)!important;
+      box-shadow:0 5px 0 #bcebd0!important;
+    }
+
+    .answer-btn:disabled{
+      cursor:default;
+      opacity:1;
+    }
+
+    .feedback{
+      min-height:42px;
+      margin:24px 0 6px;
+      text-align:center;
+      font-size:1.25rem;
+      font-weight:900;
+    }
+
+    .next-btn,
+    .restart-btn{
+      width:100%;
+      border:0;
+      border-radius:18px;
+      padding:17px 18px;
+      font-size:1.15rem;
+      font-weight:900;
+      color:#fff;
+      background:linear-gradient(90deg,var(--purple),var(--blue));
+      box-shadow:0 7px 0 #425cc5;
+      cursor:pointer;
+      margin-top:10px;
+      transition:transform .12s ease, opacity .2s ease;
+    }
+
+    .next-btn:hover,
+    .restart-btn:hover{
+      transform:translateY(-2px);
+    }
+
+    .next-btn.hidden{display:none}
+
+    .summary-score{
+      text-align:center;
+      font-size:clamp(2rem,7vw,3.7rem);
+      font-weight:900;
+      color:#4b5cc4;
+      margin:10px 0 8px;
+    }
+
+    .summary-message{
+      text-align:center;
+      font-size:1.15rem;
+      margin-bottom:24px;
+    }
+
+    .results{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      max-height:50vh;
+      overflow:auto;
+      padding-right:4px;
+    }
+
+    .result-row{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      background:#f7f9fc;
+      border-radius:14px;
+      padding:12px 14px;
+      font-weight:800;
+    }
+
+    .result-icon{
+      font-size:1.35rem;
+      flex:0 0 auto;
+      width:28px;
+      text-align:center;
+    }
+
+    .result-text{
+      flex:1;
+      line-height:1.35;
+    }
+
+    .small{
+      display:block;
+      color:#667085;
+      font-size:.9rem;
+      font-weight:700;
+      margin-top:3px;
+    }
+
+    .stars{
+      text-align:center;
+      font-size:2rem;
+      letter-spacing:6px;
+      margin-bottom:12px;
+      animation:bob 1.8s ease-in-out infinite;
+    }
+
+    @keyframes bob{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-5px)}
+    }
+
+    .confetti{
+      position:fixed;
+      top:-16px;
+      width:10px;
+      height:16px;
+      border-radius:3px;
+      pointer-events:none;
+      z-index:999;
+      animation:fall 2.5s linear forwards;
+    }
+
+    @keyframes fall{
+      to{
+        transform:translateY(110vh) rotate(720deg);
+        opacity:.9;
+      }
+    }
+
+    @media (max-width:560px){
+      body{padding:14px}
+      .card{padding:20px;border-radius:22px}
+      .answers{grid-template-columns:1fr}
+      .answer-btn{padding:15px}
+      .problem{margin:8px 0 20px}
+      .results{max-height:46vh}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card">
+      <div class="content" id="gameScreen">
+        <div class="stars">⭐ 🌈 ⭐</div>
+        <h1 class="title">Math Adventure!</h1>
+        <p class="subtitle">Choose the right answer and see how many you can get!</p>
+
+        <div class="topbar">
+          <div class="pill" id="questionCount">Question 1 of 20</div>
+          <div class="pill score-pill" id="scoreCount">Score: 0</div>
+          <div class="progress-wrap" aria-label="Game progress">
+            <div class="progress" id="progressBar"></div>
+          </div>
+        </div>
+
+        <div class="question-label" id="questionType">Addition</div>
+        <div class="problem" id="problem">5 + 3 = ?</div>
+
+        <div class="answers" id="answers"></div>
+
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+        <button class="next-btn hidden" id="nextBtn">Next Question ➜</button>
+      </div>
+
+      <div class="content" id="summaryScreen" style="display:none">
+        <div class="stars">🎉 ⭐ 🎉</div>
+        <h2 class="title">Great Job!</h2>
+        <div class="summary-score" id="finalScore">0 / 20</div>
+        <p class="summary-message" id="summaryMessage"></p>
+        <div class="results" id="resultsList"></div>
+        <button class="restart-btn" id="restartBtn">Play Again 🔁</button>
+      </div>
+    </section>
+  </main>
+
+<script>
+(() => {
+  const TOTAL_QUESTIONS = 20;
+
+  const baseQuestions = [
+    // 10 addition questions
+    { a: 2,  op: "+", b: 3,  answer: 5,  type: "Addition" },
+    { a: 4,  op: "+", b: 5,  answer: 9,  type: "Addition" },
+    { a: 6,  op: "+", b: 2,  answer: 8,  type: "Addition" },
+    { a: 7,  op: "+", b: 3,  answer: 10, type: "Addition" },
+    { a: 5,  op: "+", b: 6,  answer: 11, type: "Addition" },
+    { a: 8,  op: "+", b: 4,  answer: 12, type: "Addition" },
+    { a: 9,  op: "+", b: 5,  answer: 14, type: "Addition" },
+    { a: 10, op: "+", b: 7,  answer: 17, type: "Addition" },
+    { a: 11, op: "+", b: 6,  answer: 17, type: "Addition" },
+    { a: 12, op: "+", b: 8,  answer: 20, type: "Addition" },
+
+    // 10 subtraction questions
+    { a: 5,  op: "−", b: 2, answer: 3,  type: "Subtraction" },
+    { a: 7,  op: "−", b: 4, answer: 3,  type: "Subtraction" },
+    { a: 9,  op: "−", b: 3, answer: 6,  type: "Subtraction" },
+    { a: 10, op: "−", b: 5, answer: 5,  type: "Subtraction" },
+    { a: 12, op: "−", b: 4, answer: 8,  type: "Subtraction" },
+    { a: 13, op: "−", b: 6, answer: 7,  type: "Subtraction" },
+    { a: 15, op: "−", b: 7, answer: 8,  type: "Subtraction" },
+    { a: 16, op: "−", b: 9, answer: 7,  type: "Subtraction" },
+    { a: 18, op: "−", b: 8, answer: 10, type: "Subtraction" },
+    { a: 20, op: "−", b: 9, answer: 11, type: "Subtraction" }
+  ];
+
+  let questions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let results = [];
+  let answered = false;
+
+  const gameScreen = document.getElementById("gameScreen");
+  const summaryScreen = document.getElementById("summaryScreen");
+  const questionCount = document.getElementById("questionCount");
+  const scoreCount = document.getElementById("scoreCount");
+  const progressBar = document.getElementById("progressBar");
+  const questionType = document.getElementById("questionType");
+  const problem = document.getElementById("problem");
+  const answers = document.getElementById("answers");
+  const feedback = document.getElementById("feedback");
+  const nextBtn = document.getElementById("nextBtn");
+  const finalScore = document.getElementById("finalScore");
+  const summaryMessage = document.getElementById("summaryMessage");
+  const resultsList = document.getElementById("resultsList");
+  const restartBtn = document.getElementById("restartBtn");
+
+  function shuffle(array) {
+    const copy = [...array];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  function makeChoices(correct) {
+    const choices = new Set([correct]);
+    const offsets = shuffle([-4,-3,-2,-1,1,2,3,4,5]);
+
+    for (const offset of offsets) {
+      let value = correct + offset;
+      if (value >= 0 && value <= 20) choices.add(value);
+      if (choices.size === 4) break;
+    }
+
+    while (choices.size < 4) {
+      choices.add(Math.floor(Math.random() * 21));
+    }
+
+    return shuffle([...choices]);
+  }
+
+  function startGame() {
+    questions = shuffle(baseQuestions).map(q => ({
+      ...q,
+      choices: makeChoices(q.answer)
+    }));
+
+    currentIndex = 0;
+    score = 0;
+    results = [];
+    answered = false;
+
+    gameScreen.style.display = "block";
+    summaryScreen.style.display = "none";
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    answered = false;
+    const q = questions[currentIndex];
+
+    questionCount.textContent = `Question ${currentIndex + 1} of ${TOTAL_QUESTIONS}`;
+    scoreCount.textContent = `Score: ${score}`;
+    progressBar.style.width = `${(currentIndex / TOTAL_QUESTIONS) * 100}%`;
+    questionType.textContent = q.type;
+    problem.textContent = `${q.a} ${q.op} ${q.b} = ?`;
+    feedback.textContent = "";
+    nextBtn.classList.add("hidden");
+    nextBtn.textContent = currentIndex === TOTAL_QUESTIONS - 1 ? "See My Results 🎉" : "Next Question ➜";
+
+    answers.innerHTML = "";
+
+    q.choices.forEach(choice => {
+      const btn = document.createElement("button");
+      btn.className = "answer-btn";
+      btn.textContent = choice;
+      btn.setAttribute("aria-label", `Answer ${choice}`);
+      btn.addEventListener("click", () => selectAnswer(choice, btn));
+      answers.appendChild(btn);
+    });
+  }
+
+  function selectAnswer(choice, clickedButton) {
+    if (answered) return;
+    answered = true;
+
+    const q = questions[currentIndex];
+    const isCorrect = choice === q.answer;
+    const buttons = [...answers.querySelectorAll(".answer-btn")];
+
+    buttons.forEach(btn => {
+      btn.disabled = true;
+      const value = Number(btn.textContent);
+
+      if (value === q.answer) {
+        if (isCorrect) {
+          btn.classList.add("correct");
+        } else {
+          btn.classList.add("correct-outline");
+        }
+      }
+    });
+
+    if (isCorrect) {
+      clickedButton.classList.add("correct");
+      score++;
+      feedback.textContent = "🎉 You got it! Great job!";
+    } else {
+      clickedButton.classList.add("wrong");
+      feedback.textContent = `Nice try! The right answer is ${q.answer}.`;
+    }
+
+    scoreCount.textContent = `Score: ${score}`;
+
+    results.push({
+      ...q,
+      chosen: choice,
+      correct: isCorrect
+    });
+
+    nextBtn.classList.remove("hidden");
+  }
+
+  function nextQuestion() {
+    if (!answered) return;
+
+    if (currentIndex < TOTAL_QUESTIONS - 1) {
+      currentIndex++;
+      renderQuestion();
+    } else {
+      showSummary();
+    }
+  }
+
+  function showSummary() {
+    progressBar.style.width = "100%";
+    gameScreen.style.display = "none";
+    summaryScreen.style.display = "block";
+
+    finalScore.textContent = `${score} / ${TOTAL_QUESTIONS}`;
+
+    if (score === 20) {
+      summaryMessage.textContent = "Perfect score! You are a math superstar! 🌟";
+    } else if (score >= 16) {
+      summaryMessage.textContent = "Amazing work! You really know your math! 🎉";
+    } else if (score >= 12) {
+      summaryMessage.textContent = "Great job! Keep practicing and growing! 💪";
+    } else {
+      summaryMessage.textContent = "Nice work finishing all 20! Every practice round makes you stronger! 🌈";
+    }
+
+    resultsList.innerHTML = "";
+
+    results.forEach((r, index) => {
+      const row = document.createElement("div");
+      row.className = "result-row";
+
+      const icon = document.createElement("div");
+      icon.className = "result-icon";
+      icon.textContent = r.correct ? "✅" : "❌";
+
+      const text = document.createElement("div");
+      text.className = "result-text";
+      text.innerHTML = `
+        ${index + 1}. ${r.a} ${r.op} ${r.b} = ${r.answer}
+        <span class="small">${r.correct ? "Correct!" : `Your answer: ${r.chosen}`}</span>
+      `;
+
+      row.appendChild(icon);
+      row.appendChild(text);
+      resultsList.appendChild(row);
+    });
+
+    launchConfetti();
+  }
+
+  function launchConfetti() {
+    const colors = ["#ff7fb1","#5b8def","#ffd85a","#2fbd72","#8d6de8"];
+    for (let i = 0; i < 70; i++) {
+      const piece = document.createElement("div");
+      piece.className = "confetti";
+      piece.style.left = Math.random() * 100 + "vw";
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = Math.random() * .8 + "s";
+      piece.style.transform = `rotate(${Math.random()*360}deg)`;
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 3600);
+    }
+  }
+
+  nextBtn.addEventListener("click", nextQuestion);
+  restartBtn.addEventListener("click", startGame);
+
+  startGame();
+})();
+</script>
+</body>
+</html>

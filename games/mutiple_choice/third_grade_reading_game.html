@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Third Grade Reading Adventure!</title>
+  <style>
+    :root{
+      --bg1:#d7f5ff;
+      --bg2:#fff0c7;
+      --card:#ffffff;
+      --ink:#24324a;
+      --blue:#5b8def;
+      --purple:#8d6de8;
+      --pink:#ff7fb1;
+      --green:#2fbd72;
+      --green-dark:#178b4c;
+      --red:#ef5350;
+      --red-dark:#c43d3a;
+      --shadow:0 16px 40px rgba(36,50,74,.16);
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:"Trebuchet MS","Arial Rounded MT Bold",Arial,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 10% 12%, rgba(255,255,255,.9) 0 4%, transparent 4.3%),
+        radial-gradient(circle at 85% 14%, rgba(255,255,255,.7) 0 3%, transparent 3.3%),
+        radial-gradient(circle at 20% 82%, rgba(255,255,255,.6) 0 3%, transparent 3.3%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:24px;
+      overflow-x:hidden;
+    }
+
+    .app{
+      width:min(800px,100%);
+      position:relative;
+    }
+
+    .card{
+      background:rgba(255,255,255,.97);
+      border:4px solid rgba(255,255,255,.95);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      padding:28px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .card::before,
+    .card::after{
+      content:"";
+      position:absolute;
+      width:130px;
+      height:130px;
+      border-radius:50%;
+      opacity:.14;
+      z-index:0;
+    }
+
+    .card::before{
+      background:var(--pink);
+      top:-50px;
+      left:-40px;
+    }
+
+    .card::after{
+      background:var(--blue);
+      bottom:-60px;
+      right:-40px;
+    }
+
+    .content{position:relative;z-index:1}
+    h1,h2,p{margin-top:0}
+
+    .title{
+      text-align:center;
+      font-size:clamp(2rem,6vw,3.4rem);
+      margin-bottom:8px;
+      color:#4b5cc4;
+      text-shadow:0 3px 0 #fff;
+    }
+
+    .subtitle{
+      text-align:center;
+      font-size:1.08rem;
+      margin-bottom:24px;
+    }
+
+    .topbar{
+      display:flex;
+      gap:12px;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:22px;
+    }
+
+    .pill{
+      background:#eef4ff;
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:.95rem;
+    }
+
+    .score-pill{
+      background:#ecfff4;
+      color:#177b48;
+    }
+
+    .progress-wrap{
+      width:100%;
+      height:14px;
+      border-radius:999px;
+      background:#edf0f6;
+      overflow:hidden;
+      margin-top:6px;
+    }
+
+    .progress{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,var(--pink),var(--purple),var(--blue));
+      transition:width .3s ease;
+    }
+
+    .question-label{
+      text-align:center;
+      font-size:1rem;
+      color:#667085;
+      font-weight:800;
+      margin-bottom:10px;
+    }
+
+    .prompt{
+      text-align:center;
+      font-size:clamp(1.35rem,4.2vw,2.05rem);
+      font-weight:900;
+      line-height:1.35;
+      margin:14px auto 26px;
+      color:#2f3d62;
+      max-width:720px;
+    }
+
+    .passage{
+      display:block;
+      text-align:left;
+      margin:10px auto 14px;
+      padding:16px 18px;
+      background:#f8f7ff;
+      border-radius:18px;
+      font-size:clamp(1.05rem,3.5vw,1.35rem);
+      line-height:1.55;
+      font-weight:700;
+      color:#3d4670;
+    }
+
+    .answers{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:14px;
+    }
+
+    .answer-btn{
+      border:0;
+      border-radius:20px;
+      padding:18px 14px;
+      min-height:76px;
+      font-size:clamp(1.05rem,4vw,1.45rem);
+      font-weight:900;
+      color:#26324d;
+      background:#f7f9ff;
+      box-shadow:0 6px 0 #dce3f6;
+      cursor:pointer;
+      transition:transform .12s ease, box-shadow .12s ease, background .2s ease, color .2s ease;
+      outline:none;
+    }
+
+    .answer-btn:nth-child(1){background:#fff1f6;box-shadow:0 6px 0 #ffd4e4}
+    .answer-btn:nth-child(2){background:#eef8ff;box-shadow:0 6px 0 #cdeaff}
+    .answer-btn:nth-child(3){background:#fff9df;box-shadow:0 6px 0 #ffec9e}
+    .answer-btn:nth-child(4){background:#f0fff3;box-shadow:0 6px 0 #c9f2d2}
+
+    .answer-btn:hover:not(:disabled){transform:translateY(-2px)}
+    .answer-btn:active:not(:disabled){transform:translateY(3px)}
+
+    .answer-btn.correct{
+      background:var(--green)!important;
+      color:#fff;
+      box-shadow:0 6px 0 var(--green-dark)!important;
+    }
+
+    .answer-btn.wrong{
+      background:var(--red)!important;
+      color:#fff;
+      box-shadow:0 6px 0 var(--red-dark)!important;
+    }
+
+    .answer-btn.correct-outline{
+      background:#fff!important;
+      color:var(--green-dark);
+      border:5px solid var(--green)!important;
+      box-shadow:0 5px 0 #bcebd0!important;
+    }
+
+    .answer-btn:disabled{
+      cursor:default;
+      opacity:1;
+    }
+
+    .feedback{
+      min-height:42px;
+      margin:24px 0 6px;
+      text-align:center;
+      font-size:1.2rem;
+      font-weight:900;
+    }
+
+    .next-btn,
+    .restart-btn{
+      width:100%;
+      border:0;
+      border-radius:18px;
+      padding:17px 18px;
+      font-size:1.15rem;
+      font-weight:900;
+      color:#fff;
+      background:linear-gradient(90deg,var(--purple),var(--blue));
+      box-shadow:0 7px 0 #425cc5;
+      cursor:pointer;
+      margin-top:10px;
+      transition:transform .12s ease;
+    }
+
+    .next-btn:hover,
+    .restart-btn:hover{transform:translateY(-2px)}
+    .next-btn.hidden{display:none}
+
+    .summary-score{
+      text-align:center;
+      font-size:clamp(2rem,7vw,3.7rem);
+      font-weight:900;
+      color:#4b5cc4;
+      margin:10px 0 8px;
+    }
+
+    .summary-message{
+      text-align:center;
+      font-size:1.15rem;
+      margin-bottom:24px;
+    }
+
+    .results{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      max-height:50vh;
+      overflow:auto;
+      padding-right:4px;
+    }
+
+    .result-row{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      background:#f7f9fc;
+      border-radius:14px;
+      padding:12px 14px;
+      font-weight:800;
+    }
+
+    .result-icon{
+      font-size:1.35rem;
+      flex:0 0 auto;
+      width:28px;
+      text-align:center;
+      padding-top:2px;
+    }
+
+    .result-text{
+      flex:1;
+      line-height:1.4;
+    }
+
+    .small{
+      display:block;
+      color:#667085;
+      font-size:.9rem;
+      font-weight:700;
+      margin-top:4px;
+    }
+
+    .stars{
+      text-align:center;
+      font-size:2rem;
+      letter-spacing:6px;
+      margin-bottom:12px;
+      animation:bob 1.8s ease-in-out infinite;
+    }
+
+    @keyframes bob{
+      0%,100%{transform:translateY(0)}
+      50%{transform:translateY(-5px)}
+    }
+
+    .confetti{
+      position:fixed;
+      top:-16px;
+      width:10px;
+      height:16px;
+      border-radius:3px;
+      pointer-events:none;
+      z-index:999;
+      animation:fall 2.5s linear forwards;
+    }
+
+    @keyframes fall{
+      to{
+        transform:translateY(110vh) rotate(720deg);
+        opacity:.9;
+      }
+    }
+
+    @media (max-width:560px){
+      body{padding:14px}
+      .card{padding:20px;border-radius:22px}
+      .answers{grid-template-columns:1fr}
+      .answer-btn{padding:15px;min-height:64px}
+      .prompt{margin:10px 0 20px}
+      .results{max-height:46vh}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card">
+      <div class="content" id="gameScreen">
+        <div class="stars">📚 🔎 ⭐</div>
+        <h1 class="title">Reading Adventure!</h1>
+        <p class="subtitle">Third Grade Challenge — Read carefully and choose the best answer!</p>
+
+        <div class="topbar">
+          <div class="pill" id="questionCount">Question 1 of 20</div>
+          <div class="pill score-pill" id="scoreCount">Score: 0</div>
+          <div class="progress-wrap" aria-label="Game progress">
+            <div class="progress" id="progressBar"></div>
+          </div>
+        </div>
+
+        <div class="question-label" id="questionType">Vocabulary</div>
+        <div class="prompt" id="prompt"></div>
+
+        <div class="answers" id="answers"></div>
+
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+        <button class="next-btn hidden" id="nextBtn">Next Question ➜</button>
+      </div>
+
+      <div class="content" id="summaryScreen" style="display:none">
+        <div class="stars">🎉 📖 🎉</div>
+        <h2 class="title">Reading Challenge Complete!</h2>
+        <div class="summary-score" id="finalScore">0 / 20</div>
+        <p class="summary-message" id="summaryMessage"></p>
+        <div class="results" id="resultsList"></div>
+        <button class="restart-btn" id="restartBtn">Play Again 🔁</button>
+      </div>
+    </section>
+  </main>
+
+<script>
+(() => {
+  const TOTAL_QUESTIONS = 20;
+
+  const baseQuestions = [
+    // Vocabulary & context clues
+    {
+      type: "Vocabulary",
+      prompt: 'What does the word <b>enormous</b> mean?',
+      answer: "very large",
+      choices: ["very large", "very quiet", "very small", "very fast"]
+    },
+    {
+      type: "Context Clues",
+      prompt: 'Use the sentence to figure out the meaning of <b>exhausted</b>.<span class="passage">After running around the playground for an hour, Ava was exhausted and sat down to rest.</span>',
+      answer: "very tired",
+      choices: ["very tired", "very excited", "very hungry", "very angry"]
+    },
+    {
+      type: "Vocabulary",
+      prompt: 'Which word means about the same as <b>glad</b>?',
+      answer: "happy",
+      choices: ["happy", "slow", "cold", "loud"]
+    },
+    {
+      type: "Vocabulary",
+      prompt: 'Which word is the opposite of <b>ancient</b>?',
+      answer: "new",
+      choices: ["new", "old", "large", "broken"]
+    },
+
+    // Grammar / language
+    {
+      type: "Grammar",
+      prompt: 'Which sentence is written correctly?',
+      answer: "My dog likes to run.",
+      choices: ["My dog likes to run.", "my dog likes to run.", "My dog likes to run", "my Dog likes to run."]
+    },
+    {
+      type: "Grammar",
+      prompt: 'Which word is the <b>verb</b> in this sentence?<span class="passage">The rabbit hops across the grass.</span>',
+      answer: "hops",
+      choices: ["hops", "rabbit", "grass", "the"]
+    },
+    {
+      type: "Grammar",
+      prompt: 'Which word is the <b>noun</b> in this sentence?<span class="passage">The bright sun shines.</span>',
+      answer: "sun",
+      choices: ["sun", "bright", "shines", "the"]
+    },
+    {
+      type: "Grammar",
+      prompt: 'Which word best completes the sentence?<span class="passage">Yesterday, we ___ to the library.</span>',
+      answer: "walked",
+      choices: ["walked", "walk", "walking", "walks"]
+    },
+
+    // Sequencing
+    {
+      type: "Sequencing",
+      prompt: 'What should happen first when making a peanut butter sandwich?',
+      answer: "Get two slices of bread.",
+      choices: ["Get two slices of bread.", "Eat the sandwich.", "Cut the sandwich.", "Put the sandwich on a plate."]
+    },
+    {
+      type: "Sequencing",
+      prompt: 'Read the steps.<span class="passage">1. Maya planted a seed.<br>2. She watered the soil.<br>3. A tiny sprout appeared.<br>4. The plant grew taller.</span>What happened after Maya watered the soil?',
+      answer: "A tiny sprout appeared.",
+      choices: ["A tiny sprout appeared.", "She planted a seed.", "The plant grew taller.", "She picked a flower."]
+    },
+    {
+      type: "Sequencing",
+      prompt: 'Which word usually tells you something happened last?',
+      answer: "finally",
+      choices: ["finally", "first", "before", "next"]
+    },
+    {
+      type: "Sequencing",
+      prompt: 'Which order makes the most sense?',
+      answer: "wake up, get dressed, eat breakfast, go to school",
+      choices: [
+        "wake up, get dressed, eat breakfast, go to school",
+        "go to school, wake up, eat breakfast, get dressed",
+        "eat breakfast, go to school, wake up, get dressed",
+        "get dressed, go to school, wake up, eat breakfast"
+      ]
+    },
+
+    // Main idea & comprehension
+    {
+      type: "Main Idea",
+      prompt: 'Read the passage.<span class="passage">Bees visit flowers to collect nectar. As they move from flower to flower, they also carry pollen. This helps many plants make seeds and grow new plants.</span>What is the main idea?',
+      answer: "Bees help plants grow.",
+      choices: ["Bees help plants grow.", "Bees are afraid of flowers.", "All insects make honey.", "Flowers only grow in spring."]
+    },
+    {
+      type: "Reading Comprehension",
+      prompt: 'Read the passage.<span class="passage">Marcus packed his towel, sunscreen, and goggles. When he arrived, he jumped into the cool water and practiced swimming.</span>Where did Marcus most likely go?',
+      answer: "a pool",
+      choices: ["a pool", "a library", "a bakery", "a farm"]
+    },
+    {
+      type: "Reading Comprehension",
+      prompt: 'Read the passage.<span class="passage">Nina looked outside and saw dark clouds. She grabbed her umbrella before leaving the house.</span>Why did Nina take an umbrella?',
+      answer: "She thought it might rain.",
+      choices: ["She thought it might rain.", "She wanted shade from snow.", "She was going swimming.", "She wanted to fly a kite."]
+    },
+    {
+      type: "Reading Comprehension",
+      prompt: 'Read the passage.<span class="passage">Carlos found a small bird on the ground. He noticed a nest in a nearby tree and called an adult for help.</span>What does this show about Carlos?',
+      answer: "He wants to help the bird.",
+      choices: ["He wants to help the bird.", "He is afraid of trees.", "He wants to keep the bird as a toy.", "He does not care about animals."]
+    },
+    {
+      type: "Main Idea",
+      prompt: 'Read the passage.<span class="passage">Some animals sleep during the day and are awake at night. Owls, bats, and raccoons are examples of animals that are active after dark.</span>What is the passage mostly about?',
+      answer: "animals that are active at night",
+      choices: ["animals that are active at night", "animals that live in water", "how birds build nests", "why animals need food"]
+    },
+    {
+      type: "Reading Comprehension",
+      prompt: 'Read the passage.<span class="passage">Jamal practiced the piano every afternoon for two weeks. On Friday, he played a song for his family without stopping.</span>Why was Jamal able to play the song well?',
+      answer: "He practiced often.",
+      choices: ["He practiced often.", "He bought a new piano.", "His family played for him.", "He only practiced once."]
+    },
+    {
+      type: "Reading Comprehension",
+      prompt: 'Read the passage.<span class="passage">The class wanted to keep the playground clean. They picked up wrappers, recycled bottles, and reminded others to use the trash cans.</span>What problem was the class trying to solve?',
+      answer: "There was trash on the playground.",
+      choices: ["There was trash on the playground.", "The playground was too small.", "There were no trees.", "The class needed new toys."]
+    },
+    {
+      type: "Author's Purpose",
+      prompt: 'A paragraph explains how to brush your teeth correctly. What is the author most likely trying to do?',
+      answer: "teach the reader how to do something",
+      choices: ["teach the reader how to do something", "tell a funny story", "convince the reader to buy a toy", "describe a made-up monster"]
+    }
+  ];
+
+  let questions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let results = [];
+  let answered = false;
+
+  const gameScreen = document.getElementById("gameScreen");
+  const summaryScreen = document.getElementById("summaryScreen");
+  const questionCount = document.getElementById("questionCount");
+  const scoreCount = document.getElementById("scoreCount");
+  const progressBar = document.getElementById("progressBar");
+  const questionType = document.getElementById("questionType");
+  const prompt = document.getElementById("prompt");
+  const answers = document.getElementById("answers");
+  const feedback = document.getElementById("feedback");
+  const nextBtn = document.getElementById("nextBtn");
+  const finalScore = document.getElementById("finalScore");
+  const summaryMessage = document.getElementById("summaryMessage");
+  const resultsList = document.getElementById("resultsList");
+  const restartBtn = document.getElementById("restartBtn");
+
+  function shuffle(array) {
+    const copy = [...array];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  function startGame() {
+    questions = shuffle(baseQuestions).map(q => ({
+      ...q,
+      choices: shuffle(q.choices)
+    }));
+
+    currentIndex = 0;
+    score = 0;
+    results = [];
+    answered = false;
+
+    gameScreen.style.display = "block";
+    summaryScreen.style.display = "none";
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    answered = false;
+    const q = questions[currentIndex];
+
+    questionCount.textContent = `Question ${currentIndex + 1} of ${TOTAL_QUESTIONS}`;
+    scoreCount.textContent = `Score: ${score}`;
+    progressBar.style.width = `${(currentIndex / TOTAL_QUESTIONS) * 100}%`;
+    questionType.textContent = q.type;
+    prompt.innerHTML = q.prompt;
+    feedback.textContent = "";
+    nextBtn.classList.add("hidden");
+    nextBtn.textContent = currentIndex === TOTAL_QUESTIONS - 1 ? "See My Results 🎉" : "Next Question ➜";
+
+    answers.innerHTML = "";
+
+    q.choices.forEach(choice => {
+      const btn = document.createElement("button");
+      btn.className = "answer-btn";
+      btn.textContent = choice;
+      btn.setAttribute("aria-label", `Answer ${choice}`);
+      btn.addEventListener("click", () => selectAnswer(choice, btn));
+      answers.appendChild(btn);
+    });
+  }
+
+  function selectAnswer(choice, clickedButton) {
+    if (answered) return;
+    answered = true;
+
+    const q = questions[currentIndex];
+    const isCorrect = choice === q.answer;
+    const buttons = [...answers.querySelectorAll(".answer-btn")];
+
+    buttons.forEach(btn => {
+      btn.disabled = true;
+
+      if (btn.textContent === q.answer) {
+        if (isCorrect) {
+          btn.classList.add("correct");
+        } else {
+          btn.classList.add("correct-outline");
+        }
+      }
+    });
+
+    if (isCorrect) {
+      clickedButton.classList.add("correct");
+      score++;
+      feedback.textContent = "🎉 Excellent reading! You got it!";
+    } else {
+      clickedButton.classList.add("wrong");
+      feedback.textContent = `Nice try! The correct answer is "${q.answer}".`;
+    }
+
+    scoreCount.textContent = `Score: ${score}`;
+
+    results.push({
+      ...q,
+      chosen: choice,
+      correct: isCorrect
+    });
+
+    nextBtn.classList.remove("hidden");
+  }
+
+  function nextQuestion() {
+    if (!answered) return;
+
+    if (currentIndex < TOTAL_QUESTIONS - 1) {
+      currentIndex++;
+      renderQuestion();
+    } else {
+      showSummary();
+    }
+  }
+
+  function stripHTML(text) {
+    const temp = document.createElement("div");
+    temp.innerHTML = text;
+    return (temp.textContent || temp.innerText || "").replace(/\s+/g, " ").trim();
+  }
+
+  function showSummary() {
+    progressBar.style.width = "100%";
+    gameScreen.style.display = "none";
+    summaryScreen.style.display = "block";
+
+    finalScore.textContent = `${score} / ${TOTAL_QUESTIONS}`;
+
+    if (score === 20) {
+      summaryMessage.textContent = "Perfect score! You are a reading superstar! 🌟";
+    } else if (score >= 16) {
+      summaryMessage.textContent = "Amazing work! Your reading skills are shining! 🎉";
+    } else if (score >= 12) {
+      summaryMessage.textContent = "Great job! Keep reading, thinking, and growing! 📚";
+    } else {
+      summaryMessage.textContent = "Nice work finishing the challenge! Every page you read makes you stronger! 🌈";
+    }
+
+    resultsList.innerHTML = "";
+
+    results.forEach((r, index) => {
+      const row = document.createElement("div");
+      row.className = "result-row";
+
+      const icon = document.createElement("div");
+      icon.className = "result-icon";
+      icon.textContent = r.correct ? "✅" : "❌";
+
+      const text = document.createElement("div");
+      text.className = "result-text";
+      const cleanPrompt = stripHTML(r.prompt);
+
+      text.innerHTML = `
+        ${index + 1}. ${cleanPrompt}
+        <span class="small">Correct answer: ${r.answer}${r.correct ? "" : ` • Your answer: ${r.chosen}`}</span>
+      `;
+
+      row.appendChild(icon);
+      row.appendChild(text);
+      resultsList.appendChild(row);
+    });
+
+    launchConfetti();
+  }
+
+  function launchConfetti() {
+    const colors = ["#ff7fb1","#5b8def","#ffd85a","#2fbd72","#8d6de8"];
+    for (let i = 0; i < 70; i++) {
+      const piece = document.createElement("div");
+      piece.className = "confetti";
+      piece.style.left = Math.random() * 100 + "vw";
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = Math.random() * .8 + "s";
+      piece.style.transform = `rotate(${Math.random()*360}deg)`;
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 3600);
+    }
+  }
+
+  nextBtn.addEventListener("click", nextQuestion);
+  restartBtn.addEventListener("click", startGame);
+
+  startGame();
+})();
+</script>
+</body>
+</html>
