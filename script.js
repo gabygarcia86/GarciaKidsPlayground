@@ -16,7 +16,7 @@ const items = {
     },
   ],
   movies: [
-    { label: 'Star Wars : Episode I', url: 'movies/star-wars-kids-movie.html' },
+    { label: 'Star Wars : Episode I', url: 'movies/star-wars-kids-movie-episode-1.html' },
     { label: 'Star Wars : Episode II', url: '' },
   ],
   multiple_choice_games: [

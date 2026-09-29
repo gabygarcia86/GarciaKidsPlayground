@@ -119,8 +119,9 @@ body {
 .play-button span {
   position: relative;
   z-index: 1;
-  width: 90%;
+  width: 95%;
   min-width: 0;
+  transform: translateX(10px);
   overflow: hidden;
   text-align: center;
   white-space: nowrap;
