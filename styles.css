@@ -40,6 +40,11 @@ body {
   align-items: start;
 }
 
+.panels.panels--single {
+  grid-template-columns: min(100%, 720px);
+  justify-content: center;
+}
+
 .panel {
   min-width: 0;
   padding: 12px 30px 27px;

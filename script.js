@@ -7,7 +7,7 @@ const items = {
   games: [
     { label: 'Math Blaster', url: 'games/math_blaster/index.html' },
     { label: 'Reading Knight', url: 'games/reading_knight/index.html' },
-    { label: 'Multiple Choice', url: 'index_multiple_choice.html' },
+    { label: 'Multiple Choice', url: 'multiple_choice.html' },
     {
       label: "Amy's World",
       url: isMobileDevice
