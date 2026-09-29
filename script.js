@@ -5,7 +5,12 @@ const items = {
     { label: 'Math Blaster', url: 'games/math_blaster/index.html' },
     { label: 'Reading Knight', url: 'games/reading_knight/index.html' },
     { label: 'Multiple Choice', url: 'index_multiple_choice.html' },
-    { label: "Amys World", url: 'games/amys_world/index.html' },
+    {
+      label: "Amy's World",
+      url: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        ? 'games/amys_world/mobile/index.html'
+        : 'games/amys_world/desktop/index.html',
+    },
   ],
   movies: [
     { label: 'Star Wars : Episode I', url: 'movies/star-wars-kids-movie.html' },
