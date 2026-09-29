@@ -4,11 +4,18 @@ const items = {
   games: [
     { label: 'Math Blaster', url: 'games/math_blaster/index.html' },
     { label: 'Reading Knight', url: 'games/reading_knight/index.html' },
-    { label: 'Placeholder', url: '' },
+    { label: 'Multiple Choice', url: 'index_multiple_choice.html' },
   ],
   movies: [
     { label: 'Star Wars : Episode I', url: 'movies/star-wars-kids-movie.html' },
-    { label: 'Placeholder', url: '' },
+    { label: 'Star Wars : Episode II', url: '' },
+  ],
+  multiple_choice_games: [
+    { label: '1st Grade Math', url: 'games/multiple_choice/first_grade_math_game.html' },
+    { label: '1st Grade Reading', url: 'games/multiple_choice/first_grade_reading_game.html' },
+    { label: '3rd Grade Math', url: 'games/multiple_choice/third_grade_math_game.html' },
+    { label: '3rd Grade Reading', url: 'games/multiple_choice/third_grade_reading_game.html' },
+    { label: 'Home', url: 'index.html' },
   ],
 };
 
@@ -35,6 +42,7 @@ function showNotice(label) {
 
 for (const [category, entries] of Object.entries(items)) {
   const list = document.getElementById(`${category}-list`);
+  if (!list) continue;
   for (const entry of entries) {
     const element = document.createElement(entry.url ? 'a' : 'button');
     element.className = 'play-button';
