@@ -1,7 +1,7 @@
 // Change each label and add its URL when a game or movie is ready.
 // A blank URL keeps the button on this page and shows a friendly message.
-const isMobileDevice = navigator.userAgentData?.mobile
-  ?? /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const isMobileDevice = navigator.maxTouchPoints > 0
+  && window.matchMedia('(pointer: coarse)').matches;
 
 const items = {
   games: [
