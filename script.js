@@ -1,5 +1,8 @@
 // Change each label and add its URL when a game or movie is ready.
 // A blank URL keeps the button on this page and shows a friendly message.
+const isMobileDevice = navigator.userAgentData?.mobile
+  ?? /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
 const items = {
   games: [
     { label: 'Math Blaster', url: 'games/math_blaster/index.html' },
@@ -7,7 +10,7 @@ const items = {
     { label: 'Multiple Choice', url: 'index_multiple_choice.html' },
     {
       label: "Amy's World",
-      url: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+      url: isMobileDevice
         ? 'games/amys_world/mobile/index.html'
         : 'games/amys_world/desktop/index.html',
     },
@@ -59,7 +62,7 @@ for (const [category, entries] of Object.entries(items)) {
       element.addEventListener('click', () => showNotice(entry.label));
     }
     const image = document.createElement('img');
-    image.src = `assets/Button_${category === 'games' ? 'Games' : 'Movies'}.png`;
+    image.src = `assets/Button_${category === 'movies' ? 'Movies' : 'Games'}.png`;
     image.alt = '';
     image.width = 492;
     image.height = 109;
