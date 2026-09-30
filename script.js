@@ -14,6 +14,7 @@ const items = {
         ? 'games/amys_world/mobile/index.html'
         : 'games/amys_world/desktop/index.html',
     },
+    { label: 'Photo Scavenger Hunt', url: 'games/photo_scavenger_hunt/Parks_and_Playgrounds_Photo_Scavenger_Hunt.html' },
   ],
   movies: [
     { label: 'Star Wars : Episode I', url: 'movies/star-wars-kids-movie-episode-1.html' },
