@@ -63,6 +63,11 @@ body {
   background: #fff1a9;
 }
 
+.panel--other {
+  border-color: #2eed05;
+  background: #b0f698;
+}
+
 .panel h2 {
   margin: 0 0 15px;
   text-align: center;

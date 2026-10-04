@@ -25,7 +25,10 @@ const items = {
     { label: '1st Grade Reading', url: 'games/multiple_choice/first_grade_reading_game.html' },
     { label: '3rd Grade Math', url: 'games/multiple_choice/third_grade_math_game.html' },
     { label: '3rd Grade Reading', url: 'games/multiple_choice/third_grade_reading_game.html' },
-    { label: 'Home', url: 'index.html' },
+    { label: 'Home', url: 'index.html', image: 'assets/Button_Home.png' },
+  ],
+  other: [
+    { label: 'BB8', url: 'other/bb8/index.html' },
   ],
 };
 
@@ -63,7 +66,8 @@ for (const [category, entries] of Object.entries(items)) {
       element.addEventListener('click', () => showNotice(entry.label));
     }
     const image = document.createElement('img');
-    image.src = `assets/Button_${category === 'movies' ? 'Movies' : 'Games'}.png`;
+    const buttonArt = category === 'movies' ? 'Movies' : category === 'other' ? 'Other' : 'Games';
+    image.src = entry.image || `assets/Button_${buttonArt}.png`;
     image.alt = '';
     image.width = 492;
     image.height = 109;
