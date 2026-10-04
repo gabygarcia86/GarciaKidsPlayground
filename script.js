@@ -32,6 +32,15 @@ const items = {
   ],
 };
 
+const FOOTER_MESSAGE = 'This site and its contents were created by Gaby Garcia.';
+
+const footer = document.querySelector('.site-footer');
+if (footer) {
+  const footerText = document.createElement('p');
+  footerText.textContent = FOOTER_MESSAGE;
+  footer.append(footerText);
+}
+
 const notice = document.getElementById('notice');
 let noticeTimer;
 const labelMeasure = document.createElement('canvas').getContext('2d');
