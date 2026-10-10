@@ -32,7 +32,7 @@ const items = {
   ],
 };
 
-const FOOTER_MESSAGE = 'This site and its contents were created by Gaby Garcia.';
+const FOOTER_MESSAGE = 'Created by Gaby Garcia';
 
 const footer = document.querySelector('.site-footer');
 if (footer) {
