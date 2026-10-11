@@ -48,7 +48,12 @@ const items = {
   ],
   other: [
     { label: "BB8", url: "other/bb8/index.html" },
-    { label: "Happy Halloween", url: "", creepy: true },
+    {
+      label: "Happy Halloween",
+      url: "",
+      creepy: true,
+      message: "BOO Happy Halloween!",
+    },
   ],
 };
 
@@ -80,8 +85,8 @@ const labelResizer = new ResizeObserver((entries) => {
   }
 });
 
-function showNotice(label) {
-  notice.textContent = `${label} is coming soon!`;
+function showNotice(message) {
+  notice.textContent = message;
   notice.hidden = false;
   clearTimeout(noticeTimer);
   noticeTimer = setTimeout(() => {
@@ -101,7 +106,9 @@ for (const [category, entries] of Object.entries(items)) {
       element.href = entry.url;
     } else {
       element.type = "button";
-      element.addEventListener("click", () => showNotice(entry.label));
+      element.addEventListener("click", () =>
+        showNotice(entry.message || `${entry.label} is coming soon!`),
+      );
     }
     const image = document.createElement("img");
     const buttonArt =
