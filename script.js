@@ -46,6 +46,7 @@ const items = {
     },
     { label: "Home", url: "index.html", image: "assets/Button_Home.png" },
   ],
+  apps: [{ label: "Calculator", url: "" }],
   other: [
     { label: "BB8", url: "other/bb8/index.html" },
     {
@@ -113,11 +114,11 @@ for (const [category, entries] of Object.entries(items)) {
     }
     const image = document.createElement("img");
     const buttonArt =
-      category === "movies"
-        ? "Movies"
-        : category === "other"
-          ? "Other"
-          : "Games";
+      {
+        movies: "Movies",
+        other: "Other",
+        apps: "Other",
+      }[category] || "Games";
     image.src = entry.image || `assets/Button_${buttonArt}.png`;
     image.alt = "";
     image.width = 492;
