@@ -48,6 +48,7 @@ const items = {
   ],
   apps: [
     { label: "Calculator", url: "apps/calculator/index.html" },
+    { label: "Stop Watch", url: "apps/stopwatch/index.html" },
     { label: "Calendar", url: "apps/calendar/index.html" },
   ],
   other: [
