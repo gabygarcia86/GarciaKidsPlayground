@@ -33,7 +33,7 @@ _____/\\\\\\\\\\\\______________________________________________________________
     <script src="../../script.js" defer></script>
     <script src="script.js" defer></script>
   </head>
-  <body class="calculator-page">
+  <body>
     <main class="playground">
       <header class="masthead">
         <h1 class="sr-only">Garcia Kids Playground</h1>
@@ -47,53 +47,42 @@ _____/\\\\\\\\\\\\______________________________________________________________
       <div class="panels panels--single">
         <section class="panel panel--other" aria-labelledby="apps-heading">
           <h2 id="apps-heading">Calculator</h2>
-          <div class="calculator-container">
-            <form name="form" class="form-one">
-              <input type="text" id="result" name="answer" class="answer">
-              <br>
-              <input type="button" value="AC" onclick="clearScreen()"
-                class="clear">
-              <input type="button" value="Del" onclick="del()"
-                class="calculator-buttons">
-              <input type="button" value="/" onclick="display('/')"
-                class="calculator-buttons">
-              <br>
-              <input type="button" value="1" onclick="display('1')"
-                class="calculator-buttons">
-              <input type="button" value="2" onclick="display('2')"
-                class="calculator-buttons">
-              <input type="button" value="3" onclick="display('3')"
-                class="calculator-buttons">
-              <input type="button" value="*" onclick="display('*')"
-                class="calculator-buttons">
-              <br>
-              <input type="button" value="4" onclick="display('4')"
-                class="calculator-buttons">
-              <input type="button" value="5" onclick="display('5')"
-                class="calculator-buttons">
-              <input type="button" value="6" onclick="display('6')"
-                class="calculator-buttons">
-              <input type="button" value="+" onclick="display('+')"
-                class="calculator-buttons">
-              <br>
-              <input type="button" value="7" onclick="display('7')"
-                class="calculator-buttons">
-              <input type="button" value="8" onclick="display('8')"
-                class="calculator-buttons">
-              <input type="button" value="9" onclick="display('9')"
-                class="calculator-buttons">
-              <input type="button" value="-" onclick="display('-')"
-                class="calculator-buttons">
-              <br>
-              <input type="button" value="." onclick="display('.')"
-                class="calculator-buttons">
-              <input type="button" value="0" onclick="display('0')"
-                class="calculator-buttons">
-              <input type="button" value="=" onclick="giveAns('=')"
-                class="equal">
-            </form>
+          <div class="calculator">
+            <div class="output">
+              <input type="text" class="text" value placeholder="0">
+            </div>
+            <div>
+              <input type="button" value="AC" class="op AC">
+              <input type="button" value="DEL" class="op DEL">
+              <input type="button" value="%" class="op val">
+              <input type="button" value="÷" data-value="/" class="op val"
+                aria-label="Divide">
+            </div>
+            <div>
+              <input type="button" value="7" class="val">
+              <input type="button" value="8" class="val">
+              <input type="button" value="9" class="val">
+              <input type="button" value="X" data-value="*" class="op val"
+                aria-label="Multiply">
+            </div>
+            <div>
+              <input type="button" value="4" class="val">
+              <input type="button" value="5" class="val">
+              <input type="button" value="6" class="val">
+              <input type="button" value="-" class="op val">
+            </div>
+            <div>
+              <input type="button" value="1" class="val">
+              <input type="button" value="2" class="val">
+              <input type="button" value="3" class="val">
+              <input type="button" value="+" class="op val">
+            </div>
+            <div>
+              <input type="button" value="." class="op val">
+              <input type="button" value="0" class="val">
+              <input type="button" value="=" class="equal op">
+            </div>
           </div>
-          <br>
         </section>
       </div>
     </main>
