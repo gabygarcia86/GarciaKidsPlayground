@@ -1,0 +1,77 @@
+<!-- Welcome to Garcia Kids Playground, Thanks for coming by! 
+_____/\\\\\\\\\\\\____________________________________________________________________________/\\\________/\\\_______________/\\\_______________        
+ ___/\\\//////////____________________________________________________________________________\/\\\_____/\\\//_______________\/\\\_______________       
+  __/\\\_________________________________________________________/\\\__________________________\/\\\__/\\\//______/\\\________\/\\\_______________      
+   _\/\\\____/\\\\\\\__/\\\\\\\\\_____/\\/\\\\\\\______/\\\\\\\\_\///___/\\\\\\\\\______________\/\\\\\\//\\\_____\///_________\/\\\___/\\\\\\\\\\_     
+    _\/\\\___\/////\\\_\////////\\\___\/\\\/////\\\___/\\\//////___/\\\_\////////\\\_____________\/\\\//_\//\\\_____/\\\___/\\\\\\\\\__\/\\\//////__    
+     _\/\\\_______\/\\\___/\\\\\\\\\\__\/\\\___\///___/\\\_________\/\\\___/\\\\\\\\\\____________\/\\\____\//\\\___\/\\\__/\\\////\\\__\/\\\\\\\\\\_   
+      _\/\\\_______\/\\\__/\\\/////\\\__\/\\\_________\//\\\________\/\\\__/\\\/////\\\____________\/\\\_____\//\\\__\/\\\_\/\\\__\/\\\__\////////\\\_  
+       _\//\\\\\\\\\\\\/__\//\\\\\\\\/\\_\/\\\__________\///\\\\\\\\_\/\\\_\//\\\\\\\\/\\___________\/\\\______\//\\\_\/\\\_\//\\\\\\\/\\__/\\\\\\\\\\_ 
+        __\////////////_____\////////\//__\///_____________\////////__\///___\////////\//____________\///________\///__\///___\///////\//__\//////////__
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#8fdef7">
+    <meta name="description"
+      content="Garcia Kids Playground — games and movies for the kids.">
+    <link rel="icon" href="../../icon/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="16x16"
+      href="../../icon/icon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32"
+      href="../../icon/icon-32.png">
+    <link rel="icon" type="image/png" sizes="128x128"
+      href="../../icon/icon-128.png">
+    <link rel="icon" type="image/png" sizes="256x256"
+      href="../../icon/icon-256.png">
+    <link rel="apple-touch-icon" sizes="256x256" href="../../icon/icon-256.png">
+    <title>Garcia Kids Playground</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <script src="../../script.js" defer></script>
+  </head>
+  <body class="calendar-page">
+    <main class="playground">
+      <header class="masthead">
+        <h1 class="sr-only">Garcia Kids Playground</h1>
+        <a href="../../index.html" aria-label="Garcia Kids Playground home">
+          <img class="title-art"
+            src="../../assets/Title_GarciaKidsPlayground.png" alt
+            width="882" height="271">
+        </a>
+      </header>
+
+      <div class="panels panels--single">
+        <section class="panel panel--other" aria-labelledby="apps-heading">
+          <h2 id="apps-heading">Calendar</h2>
+          <div class="calendar">
+            <div class="calendar-header">
+              <div id="calendar-prev" class="calendar-btn"><i
+                  class="calendar-fa-solid calendar-fa-arrow-left"></i></div>
+              <div id="calendar-month-year"></div>
+              <div id="calendar-next" class="calendar-btn"><i
+                  class="calendar-fa-solid calendar-fa-arrow-right"></i></div>
+            </div>
+            <div class="calendar-weekdays">
+              <div>Sun</div>
+              <div>Mon</div>
+              <div>Tue</div>
+              <div>Wed</div>
+              <div>Thu</div>
+              <div>Fri</div>
+              <div>Sat</div>
+            </div>
+            <div class="calendar-days" id="calendar-days"></div>
+          </div>
+          <br>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer"></footer>
+
+    <div class="notice" id="notice" role="status" aria-live="polite"
+      hidden></div>
+  </body>
+</html>

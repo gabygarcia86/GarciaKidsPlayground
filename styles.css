@@ -479,3 +479,85 @@ body {
     margin-top: 30px;
   }
 }
+
+/* Calendar */
+
+.calendar-page {
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  background-color: #333333;
+}
+
+.calendar-page .playground {
+  flex: 1;
+  min-height: 0;
+}
+
+.calendar-page .site-footer {
+  flex: none;
+}
+
+.calendar {
+  background-color: #111111;
+  border-radius: 10px;
+  box-shadow: 0 0 30px #222222;
+  overflow: hidden;
+  width: min(300px, 100%);
+  margin-inline: auto;
+  color: white;
+  padding: 20px;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.calendar-btn {
+  cursor: pointer;
+}
+
+#calendar-month-year {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.calendar-weekdays, .calendar-days {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.calendar-days {
+  height: 210px;
+}
+
+.calendar-weekdays div, .calendar-days div {
+  width: 14.28%;
+  text-align: center;
+  padding: 10px 0;
+  border-radius: 5px;
+}
+
+.calendar-days div {
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.calendar-days div:hover {
+  background-color: white;
+  color: orangered;
+}
+
+.calendar-days .today {
+  background-color: orangered;
+  color: white;
+}
+
+.calendar-days .fade {
+  color: #555;
+}
