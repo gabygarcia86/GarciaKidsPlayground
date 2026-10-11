@@ -1,0 +1,85 @@
+<!-- Welcome to Garcia Kids Playground, Thanks for coming by! 
+_____/\\\\\\\\\\\\____________________________________________________________________________/\\\________/\\\_______________/\\\_______________        
+ ___/\\\//////////____________________________________________________________________________\/\\\_____/\\\//_______________\/\\\_______________       
+  __/\\\_________________________________________________________/\\\__________________________\/\\\__/\\\//______/\\\________\/\\\_______________      
+   _\/\\\____/\\\\\\\__/\\\\\\\\\_____/\\/\\\\\\\______/\\\\\\\\_\///___/\\\\\\\\\______________\/\\\\\\//\\\_____\///_________\/\\\___/\\\\\\\\\\_     
+    _\/\\\___\/////\\\_\////////\\\___\/\\\/////\\\___/\\\//////___/\\\_\////////\\\_____________\/\\\//_\//\\\_____/\\\___/\\\\\\\\\__\/\\\//////__    
+     _\/\\\_______\/\\\___/\\\\\\\\\\__\/\\\___\///___/\\\_________\/\\\___/\\\\\\\\\\____________\/\\\____\//\\\___\/\\\__/\\\////\\\__\/\\\\\\\\\\_   
+      _\/\\\_______\/\\\__/\\\/////\\\__\/\\\_________\//\\\________\/\\\__/\\\/////\\\____________\/\\\_____\//\\\__\/\\\_\/\\\__\/\\\__\////////\\\_  
+       _\//\\\\\\\\\\\\/__\//\\\\\\\\/\\_\/\\\__________\///\\\\\\\\_\/\\\_\//\\\\\\\\/\\___________\/\\\______\//\\\_\/\\\_\//\\\\\\\/\\__/\\\\\\\\\\_ 
+        __\////////////_____\////////\//__\///_____________\////////__\///___\////////\//____________\///________\///__\///___\///////\//__\//////////__
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#8fdef7">
+    <meta name="description"
+      content="Garcia Kids Playground — games and movies for the kids.">
+    <link rel="icon" href="../../icon/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="16x16"
+      href="../../icon/icon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32"
+      href="../../icon/icon-32.png">
+    <link rel="icon" type="image/png" sizes="128x128"
+      href="../../icon/icon-128.png">
+    <link rel="icon" type="image/png" sizes="256x256"
+      href="../../icon/icon-256.png">
+    <link rel="apple-touch-icon" sizes="256x256" href="../../icon/icon-256.png">
+    <title>Garcia Kids Playground</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <script src="../../script.js" defer></script>
+  </head>
+  <body class="calculator-page">
+    <div class="calculator-container">
+      <form name="form" class="form-one">
+        <input type="text" id="result" name="answer" class="answer">
+        <br>
+        <input type="button" value="AC" onclick="clearScreen()" class="clear">
+        <input type="button" value="Del" onclick="del()"
+          class="calculator-buttons">
+        <input type="button" value="/" onclick="display('/')"
+          class="calculator-buttons">
+        <br>
+        <input type="button" value="1" onclick="display('1')"
+          class="calculator-buttons">
+        <input type="button" value="2" onclick="display('2')"
+          class="calculator-buttons">
+        <input type="button" value="3" onclick="display('3')"
+          class="calculator-buttons">
+        <input type="button" value="*" onclick="display('*')"
+          class="calculator-buttons">
+        <br>
+        <input type="button" value="4" onclick="display('4')"
+          class="calculator-buttons">
+        <input type="button" value="5" onclick="display('5')"
+          class="calculator-buttons">
+        <input type="button" value="6" onclick="display('6')"
+          class="calculator-buttons">
+        <input type="button" value="+" onclick="display('+')"
+          class="calculator-buttons">
+        <br>
+        <input type="button" value="7" onclick="display('7')"
+          class="calculator-buttons">
+        <input type="button" value="8" onclick="display('8')"
+          class="calculator-buttons">
+        <input type="button" value="9" onclick="display('9')"
+          class="calculator-buttons">
+        <input type="button" value="-" onclick="display('-')"
+          class="calculator-buttons">
+        <br>
+        <input type="button" value="." onclick="display('.')"
+          class="calculator-buttons">
+        <input type="button" value="0" onclick="display('0')"
+          class="calculator-buttons">
+        <input type="button" value="=" onclick="giveAns('=')" class="equal">
+      </form>
+    </div>
+
+    <footer class="site-footer"></footer>
+
+    <div class="notice" id="notice" role="status" aria-live="polite"
+      hidden></div>
+  </body>
+</html>

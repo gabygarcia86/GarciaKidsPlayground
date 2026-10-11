@@ -46,7 +46,7 @@ const items = {
     },
     { label: "Home", url: "index.html", image: "assets/Button_Home.png" },
   ],
-  apps: [{ label: "Calculator", url: "" }],
+  apps: [{ label: "Calculator", url: "apps/calculator/index.html" }],
   other: [
     { label: "BB8", url: "other/bb8/index.html" },
     {
@@ -172,4 +172,24 @@ for (const button of document.querySelectorAll(".creepy-btn")) {
       pupil.style.transform = "";
     }
   });
+}
+
+// Calculator app button click event
+
+function clearScreen() {
+  document.getElementById("result").value = "";
+}
+function display(value) {
+  document.getElementById("result").value += value;
+}
+function giveAns() {
+  var a = document.getElementById("result").value;
+  var b = eval(a);
+  document.getElementById("result").value = b;
+}
+function del() {
+  document.form.answer.value = document.form.answer.value.substr(
+    0,
+    form.answer.value.length - 1,
+  );
 }

@@ -47,15 +47,15 @@ body {
   align-items: start;
 }
 
+.panels>.panel:last-child {
+  grid-column: 1 / -1;
+  width: min(100%, 720px);
+  justify-self: center;
+}
+
 .panels.panels--single {
   grid-template-columns: min(100%, 720px);
   justify-content: center;
-}
-
-.panel-stack {
-  display: grid;
-  gap: 56px;
-  min-width: 0;
 }
 
 .panel {
@@ -64,6 +64,12 @@ body {
   border: 10px solid;
   border-radius: 59px;
   box-shadow: 0 15px 0 rgba(0, 59, 46, .7);
+}
+
+.panel-stack {
+  display: grid;
+  gap: 56px;
+  min-width: 0;
 }
 
 .panel--games {
@@ -365,4 +371,72 @@ body {
 .creepy-btn:focus-visible {
   outline-color: #17346f;
   outline-offset: 5px;
+}
+
+/* Calculator */
+
+.calculator-page * {
+  margin: 0;
+  padding: 0;
+  font-size: 18px;
+  box-sizing: border-box;
+}
+
+.calculator-page {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 100vh;
+}
+
+.calculator-container {
+  display: block;
+  width: 340px;
+  background-color: antiquewhite;
+  border: 1px solid #333;
+  align-self: center;
+  justify-self: center;
+}
+
+.answer {
+  border: none;
+  width: 100%;
+  height: 5rem;
+  background-color: #333;
+  color: #d7ff5f;
+  font-size: 60px;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+.clear, .equal {
+  width: 160px;
+  background-color: #585858;
+  cursor: pointer;
+}
+
+.clear:hover, .equal:hover {
+  background-color: blueviolet;
+}
+
+.clear:active, .equal:active {
+  background-color: darkmagenta;
+}
+
+.calculator-buttons {
+  width: 80px;
+  cursor: pointer;
+}
+
+.calculator-buttons:hover {
+  background-color: #ddd;
+}
+
+.calculator-buttons:active {
+  background-color: #bbb;
+}
+
+input {
+  margin-right: -5px;
+  height: 50px;
+  border: 1px solid #333;
 }
