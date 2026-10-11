@@ -32,50 +32,69 @@ _____/\\\\\\\\\\\\______________________________________________________________
     <script src="../../script.js" defer></script>
   </head>
   <body class="calculator-page">
-    <div class="calculator-container">
-      <form name="form" class="form-one">
-        <input type="text" id="result" name="answer" class="answer">
-        <br>
-        <input type="button" value="AC" onclick="clearScreen()" class="clear">
-        <input type="button" value="Del" onclick="del()"
-          class="calculator-buttons">
-        <input type="button" value="/" onclick="display('/')"
-          class="calculator-buttons">
-        <br>
-        <input type="button" value="1" onclick="display('1')"
-          class="calculator-buttons">
-        <input type="button" value="2" onclick="display('2')"
-          class="calculator-buttons">
-        <input type="button" value="3" onclick="display('3')"
-          class="calculator-buttons">
-        <input type="button" value="*" onclick="display('*')"
-          class="calculator-buttons">
-        <br>
-        <input type="button" value="4" onclick="display('4')"
-          class="calculator-buttons">
-        <input type="button" value="5" onclick="display('5')"
-          class="calculator-buttons">
-        <input type="button" value="6" onclick="display('6')"
-          class="calculator-buttons">
-        <input type="button" value="+" onclick="display('+')"
-          class="calculator-buttons">
-        <br>
-        <input type="button" value="7" onclick="display('7')"
-          class="calculator-buttons">
-        <input type="button" value="8" onclick="display('8')"
-          class="calculator-buttons">
-        <input type="button" value="9" onclick="display('9')"
-          class="calculator-buttons">
-        <input type="button" value="-" onclick="display('-')"
-          class="calculator-buttons">
-        <br>
-        <input type="button" value="." onclick="display('.')"
-          class="calculator-buttons">
-        <input type="button" value="0" onclick="display('0')"
-          class="calculator-buttons">
-        <input type="button" value="=" onclick="giveAns('=')" class="equal">
-      </form>
-    </div>
+    <main class="playground">
+      <header class="masthead">
+        <h1 class="sr-only">Garcia Kids Playground</h1>
+        <a href="../../index.html" aria-label="Garcia Kids Playground home">
+          <img class="title-art"
+            src="../../assets/Title_GarciaKidsPlayground.png" alt
+            width="882" height="271">
+        </a>
+      </header>
+
+      <div class="panels panels--single">
+        <section class="panel panel--other" aria-labelledby="apps-heading">
+          <h2 id="apps-heading">Calculator</h2>
+          <div class="calculator-container">
+            <form name="form" class="form-one">
+              <input type="text" id="result" name="answer" class="answer">
+              <br>
+              <input type="button" value="AC" onclick="clearScreen()"
+                class="clear">
+              <input type="button" value="Del" onclick="del()"
+                class="calculator-buttons">
+              <input type="button" value="/" onclick="display('/')"
+                class="calculator-buttons">
+              <br>
+              <input type="button" value="1" onclick="display('1')"
+                class="calculator-buttons">
+              <input type="button" value="2" onclick="display('2')"
+                class="calculator-buttons">
+              <input type="button" value="3" onclick="display('3')"
+                class="calculator-buttons">
+              <input type="button" value="*" onclick="display('*')"
+                class="calculator-buttons">
+              <br>
+              <input type="button" value="4" onclick="display('4')"
+                class="calculator-buttons">
+              <input type="button" value="5" onclick="display('5')"
+                class="calculator-buttons">
+              <input type="button" value="6" onclick="display('6')"
+                class="calculator-buttons">
+              <input type="button" value="+" onclick="display('+')"
+                class="calculator-buttons">
+              <br>
+              <input type="button" value="7" onclick="display('7')"
+                class="calculator-buttons">
+              <input type="button" value="8" onclick="display('8')"
+                class="calculator-buttons">
+              <input type="button" value="9" onclick="display('9')"
+                class="calculator-buttons">
+              <input type="button" value="-" onclick="display('-')"
+                class="calculator-buttons">
+              <br>
+              <input type="button" value="." onclick="display('.')"
+                class="calculator-buttons">
+              <input type="button" value="0" onclick="display('0')"
+                class="calculator-buttons">
+              <input type="button" value="=" onclick="giveAns('=')"
+                class="equal">
+            </form>
+          </div>
+          <br>
+        </section>
+      </div>
+    </main>
 
     <footer class="site-footer"></footer>
 

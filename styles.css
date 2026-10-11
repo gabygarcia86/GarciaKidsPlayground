@@ -388,6 +388,19 @@ body {
   min-height: 100vh;
 }
 
+.calculator-page .playground {
+  margin-inline: auto;
+  padding: 17px 0 64px;
+}
+
+.calculator-page .site-footer {
+  padding: 12px 16px 28px;
+}
+
+.calculator-page .panels {
+  margin-top: 59px;
+}
+
 .calculator-page .calculator-container {
   display: block;
   width: min(340px, calc(100vw - 24px));
@@ -453,4 +466,16 @@ body {
   margin: 0;
   height: 50px;
   border: 1px solid #333;
+}
+
+@media (max-width: 850px) {
+  .calculator-page .panels {
+    margin-top: 35px;
+  }
+}
+
+@media (max-width: 480px) {
+  .calculator-page .panels {
+    margin-top: 30px;
+  }
 }
