@@ -60,6 +60,7 @@ const items = {
       message: "BOO Happy Halloween!",
     },
     { label: "Enter The Matrix", url: "other/matrix/index.html" },
+    { label: "Lava Lamp", url: "other/lavalamp/index.html" },
   ],
 };
 
