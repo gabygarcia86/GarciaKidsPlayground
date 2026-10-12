@@ -21,7 +21,8 @@
 .calendar {
   background-color: #111111;
   border-radius: 10px;
-  box-shadow: 0 0 30px #222222;
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.15),
+    -1px -1px 10px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   width: min(300px, 100%);
   margin-inline: auto;
