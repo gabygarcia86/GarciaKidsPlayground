@@ -6,6 +6,13 @@ const ClearEl = document.querySelector(".AC");
 const deleteEl = document.querySelector(".DEL");
 const equalEl = document.querySelector(".equal");
 
+const evaluateExpression = (expression) => {
+  const explicitMultiplication = expression
+    .replace(/(\d|\))\s*(?=\()/g, "$1*")
+    .replace(/\)\s*(?=[\d.])/g, ")*");
+  return eval(explicitMultiplication);
+};
+
 const applyPercent = () => {
   const expression = outputEl.value.replace(/\s+/g, "");
   let operandStart;
@@ -42,11 +49,11 @@ const applyPercent = () => {
   const operandExpression = expression.slice(operandStart);
 
   try {
-    const operand = eval(operandExpression);
+    const operand = evaluateExpression(operandExpression);
     let percentValue = operand / 100;
 
     if (operator === "+" || operator === "-") {
-      const base = eval(prefix.slice(0, -1));
+      const base = evaluateExpression(prefix.slice(0, -1));
       percentValue = base * percentValue;
     } else if (operator !== "*" && operator !== "/") {
       percentValue = operand / 100;
@@ -82,7 +89,7 @@ deleteEl.addEventListener("click", () => {
 // If there is no error, it evaluates the output value or else it shows syntax error as a alert message.
 equalEl.addEventListener("click", () => {
   try {
-    outputEl.value = eval(outputEl.value);
+    outputEl.value = evaluateExpression(outputEl.value);
   } catch (e) {
     alert(e);
   }
