@@ -10,6 +10,10 @@ const items = {
     { label: "Reading Knight", url: "games/reading_knight/index.html" },
     { label: "Multiple Choice", url: "multiple_choice.html" },
     {
+      label: "Rock Paper Scissors",
+      url: "games/rock_paper_scissors/index.html",
+    },
+    {
       label: "Amy's World",
       url: isMobileDevice
         ? "games/amys_world/mobile/index.html"
