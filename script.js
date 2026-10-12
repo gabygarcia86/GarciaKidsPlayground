@@ -14,6 +14,10 @@ const items = {
       url: "games/rock_paper_scissors/index.html",
     },
     {
+      label: "Tic Tac Toe",
+      url: "games/tic_tac_toe/index.html",
+    },
+    {
       label: "Amy's World",
       url: isMobileDevice
         ? "games/amys_world/mobile/index.html"
