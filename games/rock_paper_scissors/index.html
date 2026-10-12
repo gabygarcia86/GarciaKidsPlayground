@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Rock Paper Scissors</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Poppins:wght@400;600;700&display=swap"
+            rel="stylesheet">
+        <link rel="icon" href="../../icon/favicon.ico" type="image/x-icon">
+        <style>
+        :root {
+            --bg-dark: #12181f;
+            --card-bg: #1b222b;
+            --accent: #ffd700;
+            --hover-bg: #2f3945;
+            --player-color: #4facfe;
+            --cpu-color: #f093fb;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            /* font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; */
+            /* font-family: 'Roboto', sans-serif; */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        /* h1 {
+  font-family: 'Bangers', cursive;
+} */
+
+        body {
+  font-family: 'Poppins', sans-serif;
+}
+
+h1, .game-title {
+  font-family: 'Luckiest Guy', cursive;
+  letter-spacing: 2px;
+}
+
+button {
+  font-weight: 600;
+}
+
+        .game-container {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 20px;
+            text-align: center;
+            width: 90%;
+            max-width: 550px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            border: 1px solid #2c343f;
+        }
+
+        h1 { margin-bottom: 10px; font-weight: 300; letter-spacing: 4px; color: var(--accent); }
+        .instruction { color: #888; margin-bottom: 30px; font-size: 0.9rem; letter-spacing: 1px; }
+
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .choice {
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: #252d37;
+            padding: 15px;
+            border-radius: 15px;
+            width: 110px;
+            border: 2px solid transparent;
+        }
+
+        .choice:hover { 
+            transform: translateY(-10px); 
+            background: var(--hover-bg);
+            border-color: var(--accent);
+        }
+
+        .choice img { width: 120px; height: 120px; object-fit: contain; }
+        .choice span { display: block; margin-top: 10px; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; color: #ccc; }
+
+        /* Battle Area */
+        .battle-area {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+            height: 220px;
+        }
+
+        .hand-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .label {
+            font-weight: bold;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .player-label { color: var(--player-color); border: 1px solid var(--player-color); }
+        .cpu-label { color: var(--cpu-color); border: 1px solid var(--cpu-color); }
+
+        .hand { 
+            width: 140px; 
+            height: 140px; 
+            object-fit: contain;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+        }
+
+        /* Computer hand flipped to face player as per original logic */
+        #computer-hand { transform: scaleX(-1); } 
+
+        .vs { font-style: italic; font-weight: bold; color: #444; font-size: 1.2rem; margin-top: 40px;}
+
+        /* Reverted Animations to original style */
+        @keyframes shakePlayer {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-20deg); }
+        }
+
+        @keyframes shakeComputer {
+            0%, 100% { transform: scaleX(-1) rotate(0deg); }
+            50% { transform: scaleX(-1) rotate(-20deg); }
+        }
+
+        .shaking-p { animation: shakePlayer 0.5s ease-in-out infinite; }
+        .shaking-c { animation: shakeComputer 0.5s ease-in-out infinite; }
+
+        .hidden { display: none; }
+        #result-text { font-size: 1.8rem; margin-bottom: 25px; min-height: 40px; }
+        
+        button {
+            background: var(--accent);
+            border: none;
+            color: #12181f;
+            padding: 12px 35px;
+            border-radius: 30px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            text-transform: uppercase;
+  font-family: 'Poppins', sans-serif;
+        }
+
+        button:hover { background: #e6c200; transform: scale(1.05); }
+
+        hr { border: 0; border-top: 1px solid #2c343f; margin: 30px 0; }
+        .scoreboard { display: flex; justify-content: center; gap: 30px; font-size: 0.9rem; color: #aaa; }
+        .score-val { color: white; font-weight: bold; display: block; font-size: 1.2rem; margin-top: 5px; }
+    </style>
+    </head>
+    <body>
+
+        <div class="game-container">
+            <h1>BATTLE</h1>
+
+            <div id="selection-screen">
+                <p class="instruction">CHOOSE YOUR WEAPON</p>
+                <div class="choices">
+                    <div class="choice" onclick="play('rock')">
+                        <img src="images/rock.png" alt="Rock">
+                        <span>Rock</span>
+                    </div>
+                    <div class="choice" onclick="play('paper')">
+                        <img src="images/paper.png" alt="Paper">
+                        <span>Paper</span>
+                    </div>
+                    <div class="choice" onclick="play('scissors')">
+                        <img src="images/scissors.png" alt="Scissors">
+                        <span>Scissors</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="result-screen" class="hidden">
+                <div class="battle-area">
+                    <div class="hand-wrapper">
+                        <span class="label player-label">YOU</span>
+                        <img id="player-hand" src="images/rock.png"
+                            class="hand">
+                    </div>
+
+                    <div class="vs">VS</div>
+
+                    <div class="hand-wrapper">
+                        <span class="label cpu-label">COMPUTER</span>
+                        <img id="computer-hand" src="images/rock.png"
+                            class="hand">
+                    </div>
+                </div>
+                <h2 id="result-text"></h2>
+                <button onclick="reset()">PLAY AGAIN</button>
+            </div>
+
+            <hr>
+            <div class="scoreboard">
+                <div>WON <span id="win-count" class="score-val">0</span></div>
+                <div>LOST <span id="loss-count" class="score-val">0</span></div>
+                <div>DRAW <span id="draw-count" class="score-val">0</span></div>
+            </div>
+        </div>
+
+        <script>
+        const scores = { Won: 0, Lost: 0, Draw: 0 };
+        const hands = {
+            rock: "images/rock.png",
+            paper: "images/paper.png",
+            scissors: "images/scissors.png"
+        };
+
+        function play(choice) {
+            const selectionScreen = document.getElementById('selection-screen');
+            const resultScreen = document.getElementById('result-screen');
+            const pHand = document.getElementById('player-hand');
+            const cHand = document.getElementById('computer-hand');
+            const resText = document.getElementById('result-text');
+
+            selectionScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            pHand.src = hands.rock;
+            cHand.src = hands.rock;
+            resText.innerText = "WAITING...";
+
+            pHand.classList.add('shaking-p');
+            cHand.classList.add('shaking-c');
+
+            setTimeout(() => {
+                pHand.classList.remove('shaking-p');
+                cHand.classList.remove('shaking-c');
+
+                const keys = Object.keys(hands);
+                const compChoice = keys[Math.floor(Math.random() * 3)];
+
+                pHand.src = hands[choice];
+                cHand.src = hands[compChoice];
+
+                if (choice === compChoice) {
+                    resText.innerText = "IT'S A DRAW 🤝";
+                    resText.style.color = "var(--accent)";
+                    scores.Draw++;
+                } else if (
+                    (choice === 'rock' && compChoice === 'scissors') ||
+                    (choice === 'paper' && compChoice === 'rock') ||
+                    (choice === 'scissors' && compChoice === 'paper')
+                ) {
+                    resText.innerText = "YOU WIN! 🎉";
+                    resText.style.color = "#4affbb";
+                    scores.Won++;
+                } else {
+                    resText.innerText = "COMPUTER WINS 🤖";
+                    resText.style.color = "#ff5e5e";
+                    scores.Lost++;
+                }
+
+                document.getElementById('win-count').innerText = scores.Won;
+                document.getElementById('loss-count').innerText = scores.Lost;
+                document.getElementById('draw-count').innerText = scores.Draw;
+            }, 1200);
+        }
+
+        function reset() {
+            document.getElementById('selection-screen').classList.remove('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+        }
+    </script>
+    </body>
+</html>
