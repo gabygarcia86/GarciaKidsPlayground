@@ -18,10 +18,14 @@ _____/\\\\\\\\\\\\______________________________________________________________
     <meta name="description"
       content="Garcia Kids Playground — games and movies for the kids.">
     <link rel="icon" href="../../icon/favicon.ico" type="image/x-icon">
-    <link rel="icon" type="image/png" sizes="16x16" href="../../icon/icon-16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="../../icon/icon-32.png">
-    <link rel="icon" type="image/png" sizes="128x128" href="../../icon/icon-128.png">
-    <link rel="icon" type="image/png" sizes="256x256" href="../../icon/icon-256.png">
+    <link rel="icon" type="image/png" sizes="16x16"
+      href="../../icon/icon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32"
+      href="../../icon/icon-32.png">
+    <link rel="icon" type="image/png" sizes="128x128"
+      href="../../icon/icon-128.png">
+    <link rel="icon" type="image/png" sizes="256x256"
+      href="../../icon/icon-256.png">
     <link rel="apple-touch-icon" sizes="256x256" href="../../icon/icon-256.png">
     <title>The Matrix</title>
     <link rel="stylesheet" href="matrix_styles.css">
@@ -29,5 +33,30 @@ _____/\\\\\\\\\\\\______________________________________________________________
   </head>
   <body>
     <canvas></canvas>
+    <audio id="matrix-sound" src="MatrixCodeSound.mp3" autoplay loop></audio>
+    <script>
+      const matrixSound = document.querySelector("#matrix-sound");
+      const startMatrixSound = () => {
+        matrixSound.play().catch((error) => {
+          if (error.name !== "NotAllowedError") {
+            console.error("Could not play the Matrix sound:", error);
+            return;
+          }
+
+          const resumeMatrixSound = () => {
+            window.removeEventListener("pointerdown", resumeMatrixSound);
+            window.removeEventListener("keydown", resumeMatrixSound);
+            matrixSound.play().catch((playError) => {
+              console.error("Could not play the Matrix sound:", playError);
+            });
+          };
+
+          window.addEventListener("pointerdown", resumeMatrixSound);
+          window.addEventListener("keydown", resumeMatrixSound);
+        });
+      };
+
+      startMatrixSound();
+    </script>
   </body>
 </html>
