@@ -33,30 +33,6 @@ _____/\\\\\\\\\\\\______________________________________________________________
   </head>
   <body>
     <canvas></canvas>
-    <audio id="matrix-sound" src="MatrixCodeSound.mp3" autoplay loop></audio>
-    <script>
-      const matrixSound = document.querySelector("#matrix-sound");
-      const startMatrixSound = () => {
-        matrixSound.play().catch((error) => {
-          if (error.name !== "NotAllowedError") {
-            console.error("Could not play the Matrix sound:", error);
-            return;
-          }
-
-          const resumeMatrixSound = () => {
-            window.removeEventListener("pointerdown", resumeMatrixSound);
-            window.removeEventListener("keydown", resumeMatrixSound);
-            matrixSound.play().catch((playError) => {
-              console.error("Could not play the Matrix sound:", playError);
-            });
-          };
-
-          window.addEventListener("pointerdown", resumeMatrixSound);
-          window.addEventListener("keydown", resumeMatrixSound);
-        });
-      };
-
-      startMatrixSound();
-    </script>
+    <audio id="matrix-sound" src="MatrixCodeSound.mp3" loop></audio>
   </body>
 </html>
