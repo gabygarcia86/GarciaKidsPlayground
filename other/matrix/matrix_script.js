@@ -7,7 +7,17 @@ const lettersArray = letters.split("");
 const fontSize = 20;
 const columns = Math.floor(canvas.width / fontSize);
 const drops = Array(columns).fill(0);
-const matrixColors = ["#0aff0a", "#a020f0", "#0a55ff", "#ff6c0a", "#ff0a0a", "#ffef0a", "#ff63f2", "#00fff2"];
+const matrixColors = [
+  "#0aff0a",
+  "#a020f0",
+  "#0a55ff",
+  "#ff6c0a",
+  "#88ff00",
+  "#ff0a0a",
+  "#ffef0a",
+  "#ff63f2",
+  "#00fff2",
+];
 let colorIndex = 0;
 const matrixSound = document.querySelector("#matrix-sound");
 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -121,7 +131,10 @@ if (AudioContext) {
       loopSource.connect(audioContext.destination);
       loopSource.start();
     } catch (error) {
-      if (audioContext.state === "suspended" || error.name === "NotAllowedError") {
+      if (
+        audioContext.state === "suspended" ||
+        error.name === "NotAllowedError"
+      ) {
         waitForGesture();
         return;
       }
