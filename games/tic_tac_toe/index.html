@@ -51,33 +51,49 @@ _____/\\\\\\\\\\\\______________________________________________________________
           <div class="app">
             <header class="ttt-header">
               <p>
-                Player 1: <span class="badge">X</span> | Player 2: <span
-                  class="badge badge-o">O</span>
+                <span id="playerOneLabel">Player 1:</span>
+                <span class="badge">X</span> |
+                <span id="playerTwoLabel">Player 2:</span>
+                <span class="badge badge-o">O</span>
               </p>
             </header>
 
             <main class="ttt-main">
-              <div class="status-bar">
-                <span class="status-text" id="statusText">Player 1 (X)
-                  turn</span>
-                <button id="resetBtn" class="reset-btn">Reset</button>
-              </div>
+              <section class="mode-screen" id="modeScreen"
+                aria-labelledby="modeHeading">
+                <h3 id="modeHeading">Choose a game type</h3>
+                <div class="mode-options">
+                  <button id="onePlayerBtn" class="mode-btn">1 Player</button>
+                  <button id="twoPlayersBtn" class="mode-btn">2 Players</button>
+                </div>
+              </section>
 
-              <div class="board">
-                <button class="cell" data-index="0"></button>
-                <button class="cell" data-index="1"></button>
-                <button class="cell" data-index="2"></button>
-                <button class="cell" data-index="3"></button>
-                <button class="cell" data-index="4"></button>
-                <button class="cell" data-index="5"></button>
-                <button class="cell" data-index="6"></button>
-                <button class="cell" data-index="7"></button>
-                <button class="cell" data-index="8"></button>
-              </div>
+              <section class="game-screen" id="gameScreen" hidden>
+                <div class="status-bar">
+                  <span class="status-text" id="statusText">Player 1 (X)
+                    turn</span>
+                  <div class="game-actions">
+                    <button id="resetBtn" class="reset-btn">Reset</button>
+                    <button id="gameTypeBtn" class="reset-btn">Game Type</button>
+                  </div>
+                </div>
+
+                <div class="board">
+                  <button class="cell" data-index="0" aria-label="Cell 1"></button>
+                  <button class="cell" data-index="1" aria-label="Cell 2"></button>
+                  <button class="cell" data-index="2" aria-label="Cell 3"></button>
+                  <button class="cell" data-index="3" aria-label="Cell 4"></button>
+                  <button class="cell" data-index="4" aria-label="Cell 5"></button>
+                  <button class="cell" data-index="5" aria-label="Cell 6"></button>
+                  <button class="cell" data-index="6" aria-label="Cell 7"></button>
+                  <button class="cell" data-index="7" aria-label="Cell 8"></button>
+                  <button class="cell" data-index="8" aria-label="Cell 9"></button>
+                </div>
+              </section>
             </main>
 
             <footer class="ttt-footer">
-              <p>First to get three in a row wins. Take turns playing.</p>
+              <p id="gameDescription">Choose a game type to get started.</p>
             </footer>
           </div>
 
