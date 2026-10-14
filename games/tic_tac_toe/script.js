@@ -9,6 +9,7 @@ const gameScreen = document.getElementById("gameScreen");
 const gameDescription = document.getElementById("gameDescription");
 const playerOneLabel = document.getElementById("playerOneLabel");
 const playerTwoLabel = document.getElementById("playerTwoLabel");
+const poopLayer = document.getElementById("poop-layer");
 
 const WINNING_COMBOS = [
   [0, 1, 2],
@@ -25,8 +26,10 @@ let board = Array(9).fill(null);
 let currentPlayer = "X";
 let gameOver = false;
 let gameMode = null;
+let poopTimer = null;
 
 function resetGame() {
+  clearPoopStorm();
   board = Array(9).fill(null);
   currentPlayer = "X";
   gameOver = false;
@@ -71,6 +74,7 @@ function makeMove(index, symbol) {
     } else if (gameMode === "single") {
       statusText.textContent =
         result.winner === "X" ? "You win 🎉!" : "Computer wins!";
+      if (result.winner === "O") startPoopStorm();
     } else {
       statusText.textContent =
         result.winner === "X"
@@ -81,6 +85,45 @@ function makeMove(index, symbol) {
     return true;
   }
   return false;
+}
+
+function spawnPoopParticle() {
+  const poop = document.createElement("span");
+  poop.className = "poop-particle";
+  poop.textContent = "💩";
+  poop.style.left = `${Math.random() * 96}%`;
+  poop.style.setProperty(
+    "--poop-size",
+    `${(Math.random() * 1.7 + 1.5).toFixed(2)}rem`,
+  );
+  poop.style.setProperty(
+    "--poop-duration",
+    `${(Math.random() * 3 + 4.3).toFixed(2)}s`,
+  );
+  poop.style.setProperty(
+    "--poop-drift",
+    `${Math.floor(Math.random() * 181) - 90}px`,
+  );
+
+  poopLayer.appendChild(poop);
+  poop.addEventListener("animationend", (event) => {
+    if (event.animationName === "poopFall") poop.remove();
+  });
+  setTimeout(() => poop.remove(), 9000);
+}
+
+function startPoopStorm() {
+  clearPoopStorm();
+  spawnPoopParticle();
+  poopTimer = setInterval(spawnPoopParticle, 260);
+}
+
+function clearPoopStorm() {
+  if (poopTimer !== null) {
+    clearInterval(poopTimer);
+    poopTimer = null;
+  }
+  poopLayer.replaceChildren();
 }
 
 function playComputerTurn() {
