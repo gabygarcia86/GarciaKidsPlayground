@@ -7,10 +7,15 @@ const lettersArray = letters.split("");
 const fontSize = 20;
 const columns = Math.floor(canvas.width / fontSize);
 const drops = Array(columns).fill(0);
+const matrixColors = ["#0aff0a", "#a020f0", "#0a55ff", "#ff6c0a", "#ff0a0a", "#ffef0a", "#ff63f2", "#00fff2"];
+let colorIndex = 0;
 const matrixSound = document.querySelector("#matrix-sound");
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 
 matrixSound.loop = true;
+window.setInterval(() => {
+  colorIndex = (colorIndex + 1) % matrixColors.length;
+}, 2000);
 
 const createSeamlessLoopBuffer = (sourceBuffer, audioContext) => {
   const crossfadeFrames = Math.min(
@@ -134,7 +139,7 @@ if (AudioContext) {
 function draw() {
   ctx.fillStyle = "rgba(0,0,0,0.05)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = "#0aff0a";
+  ctx.fillStyle = matrixColors[colorIndex];
   ctx.font = fontSize + "px monospace";
   for (let i = 0; i < drops.length; i++) {
     const text = lettersArray[Math.floor(Math.random() * lettersArray.length)];
