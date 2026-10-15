@@ -5,12 +5,26 @@ const valEl = document.querySelectorAll(".val");
 const ClearEl = document.querySelector(".AC");
 const deleteEl = document.querySelector(".DEL");
 const equalEl = document.querySelector(".equal");
+const noticeEl = document.getElementById("notice");
 
 let previousOutputValue = outputEl.value;
 let shakeFrame;
+let calculatorNoticeTimer;
+
+const showCalculatorNotice = (message) => {
+  noticeEl.textContent = message;
+  noticeEl.hidden = false;
+  clearTimeout(calculatorNoticeTimer);
+  calculatorNoticeTimer = setTimeout(() => {
+    noticeEl.hidden = true;
+  }, 3000);
+};
 
 const checkForShake = () => {
   const currentValue = outputEl.value;
+  if (currentValue === "404" && previousOutputValue !== "404") {
+    showCalculatorNotice("404 Error : Fun Not Found");
+  }
   if (currentValue === "67" && previousOutputValue !== "67") {
     document.body.classList.remove("screen-rotate");
     cancelAnimationFrame(shakeFrame);
