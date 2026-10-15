@@ -6,6 +6,35 @@ const ClearEl = document.querySelector(".AC");
 const deleteEl = document.querySelector(".DEL");
 const equalEl = document.querySelector(".equal");
 
+let previousOutputValue = outputEl.value;
+let shakeFrame;
+
+const checkForShake = () => {
+  const currentValue = outputEl.value;
+  if (currentValue === "67" && previousOutputValue !== "67") {
+    document.body.classList.remove("screen-rotate");
+    cancelAnimationFrame(shakeFrame);
+    shakeFrame = requestAnimationFrame(() => {
+      document.body.classList.add("screen-rotate");
+    });
+  } else if (currentValue !== "67") {
+    cancelAnimationFrame(shakeFrame);
+  }
+  previousOutputValue = currentValue;
+};
+
+const setOutputValue = (value) => {
+  outputEl.value = value;
+  checkForShake();
+};
+
+outputEl.addEventListener("input", checkForShake);
+document.body.addEventListener("animationend", (event) => {
+  if (event.animationName === "calculator-screen-rotate") {
+    document.body.classList.remove("screen-rotate");
+  }
+});
+
 const evaluateExpression = (expression) => {
   const explicitMultiplication = expression
     .replace(/(\d|\))\s*(?=\()/g, "$1*")
@@ -59,7 +88,7 @@ const applyPercent = () => {
       percentValue = operand / 100;
     }
 
-    outputEl.value = `${prefix}${percentValue}`;
+    setOutputValue(`${prefix}${percentValue}`);
   } catch (e) {
     alert(e);
   }
@@ -72,24 +101,24 @@ valEl.forEach((val) => {
       applyPercent();
       return;
     }
-    outputEl.value += val.dataset.value || val.value;
+    setOutputValue(outputEl.value + (val.dataset.value || val.value));
   });
 });
 
 // It clears all the digits in the output
 ClearEl.addEventListener("click", () => {
-  outputEl.value = "";
+  setOutputValue("");
 });
 
 // It deletes the last digit in the output
 deleteEl.addEventListener("click", () => {
-  outputEl.value = outputEl.value.slice(0, -1);
+  setOutputValue(outputEl.value.slice(0, -1));
 });
 
 // If there is no error, it evaluates the output value or else it shows syntax error as a alert message.
 equalEl.addEventListener("click", () => {
   try {
-    outputEl.value = evaluateExpression(outputEl.value);
+    setOutputValue(evaluateExpression(outputEl.value));
   } catch (e) {
     alert(e);
   }

@@ -107,3 +107,28 @@ input:hover:not(.text, .op) {
   grid-column: span 4;
   border-radius: 40px;
 }
+
+body.screen-rotate {
+  transform-origin: center center;
+  animation: calculator-screen-rotate 0.8s ease-in-out;
+}
+
+@keyframes calculator-screen-rotate {
+  0%, 100% {
+    transform: rotate(0);
+  }
+
+  12.5%, 37.5%, 62.5%, 87.5% {
+    transform: rotate(-4deg);
+  }
+
+  25%, 50%, 75% {
+    transform: rotate(4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.screen-rotate {
+    animation: none;
+  }
+}
