@@ -169,6 +169,19 @@ for (const [category, entries] of Object.entries(items)) {
 for (const button of document.querySelectorAll(".creepy-btn")) {
   const eyes = button.querySelector(".creepy-btn__eyes");
   const pupils = button.querySelectorAll(".creepy-btn__pupil");
+  let closeTimer;
+
+  if (isMobileDevice) {
+    button.addEventListener("click", () => {
+      button.classList.add("is-open");
+      clearTimeout(closeTimer);
+      closeTimer = setTimeout(() => {
+        button.classList.remove("is-open");
+        button.blur();
+      }, 5000);
+    });
+  }
+
   button.addEventListener("pointermove", (event) => {
     const rect = eyes.getBoundingClientRect();
     const dx = event.clientX - (rect.left + rect.width / 2);

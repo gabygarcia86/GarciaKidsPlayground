@@ -335,10 +335,17 @@ body {
   transition: transform .05s;
 }
 
-.creepy-btn:hover .creepy-btn__cover,
-.creepy-btn:focus-visible .creepy-btn__cover {
+.creepy-btn:focus-visible .creepy-btn__cover,
+.creepy-btn.is-open .creepy-btn__cover {
   transform: rotate(-14deg);
   transition-timing-function: cubic-bezier(.65, 0, .35, 1.65);
+}
+
+@media (hover: hover) {
+  .creepy-btn:hover .creepy-btn__cover {
+    transform: rotate(-14deg);
+    transition-timing-function: cubic-bezier(.65, 0, .35, 1.65);
+  }
 }
 
 .creepy-btn:active .creepy-btn__cover {
