@@ -24,6 +24,10 @@ const checkForShake = () => {
   const currentValue = outputEl.value;
   if (currentValue === "404" && previousOutputValue !== "404") {
     showCalculatorNotice("404 Error : Fun Not Found");
+  } else if (currentValue === "42" && previousOutputValue !== "42") {
+    showCalculatorNotice(
+      "Congratulations, You've unlocked the meaning of life",
+    );
   }
   if (currentValue === "67" && previousOutputValue !== "67") {
     document.body.classList.remove("screen-rotate");
