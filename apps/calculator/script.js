@@ -6,10 +6,51 @@ const ClearEl = document.querySelector(".AC");
 const deleteEl = document.querySelector(".DEL");
 const equalEl = document.querySelector(".equal");
 const noticeEl = document.getElementById("notice");
+const poopLayer = document.getElementById("poop-layer");
 
 let previousOutputValue = outputEl.value;
 let shakeFrame;
 let calculatorNoticeTimer;
+let clearPoopTimer;
+let poopTimer;
+let clearClickCount = 0;
+
+const spawnPoopParticle = () => {
+  const poop = document.createElement("span");
+  poop.className = "poop-particle";
+  poop.textContent = "💩";
+  poop.style.left = `${Math.random() * 96}%`;
+  poop.style.setProperty(
+    "--poop-size",
+    `${(Math.random() * 1.7 + 1.5).toFixed(2)}rem`,
+  );
+  poop.style.setProperty(
+    "--poop-duration",
+    `${(Math.random() * 3 + 4.3).toFixed(2)}s`,
+  );
+  poop.style.setProperty(
+    "--poop-drift",
+    `${Math.floor(Math.random() * 181) - 90}px`,
+  );
+  poopLayer.appendChild(poop);
+  poop.addEventListener("animationend", (event) => {
+    if (event.animationName === "poopFall") poop.remove();
+  });
+  setTimeout(() => poop.remove(), 10000);
+};
+
+const clearPoopStorm = () => {
+  clearInterval(poopTimer);
+  clearTimeout(clearPoopTimer);
+  poopLayer.replaceChildren();
+};
+
+const startPoopStorm = () => {
+  clearPoopStorm();
+  spawnPoopParticle();
+  poopTimer = setInterval(spawnPoopParticle, 100);
+  clearPoopTimer = setTimeout(clearPoopStorm, 10000);
+};
 
 const showCalculatorNotice = (message) => {
   noticeEl.textContent = message;
@@ -125,7 +166,12 @@ valEl.forEach((val) => {
 
 // It clears all the digits in the output
 ClearEl.addEventListener("click", () => {
+  clearClickCount += 1;
   setOutputValue("");
+  if (clearClickCount === 10) {
+    clearClickCount = 0;
+    startPoopStorm();
+  }
 });
 
 // It deletes the last digit in the output
