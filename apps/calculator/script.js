@@ -69,6 +69,8 @@ const checkForShake = () => {
     showCalculatorNotice(
       "Congratulations, You've unlocked the meaning of life",
     );
+  } else if (currentValue === "12345" && previousOutputValue !== "12345") {
+    showCalculatorNotice("You can count! Incredible!");
   }
   if (currentValue === "67" && previousOutputValue !== "67") {
     document.body.classList.remove("screen-rotate");
