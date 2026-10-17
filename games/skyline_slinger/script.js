@@ -560,9 +560,13 @@
   function drawDistantCity() {
     const parallax = cameraX * 0.2;
     const blockWidth = 76;
-    const start = -((parallax % blockWidth) + blockWidth);
-    for (let x = start; x < width + blockWidth; x += blockWidth) {
-      const index = Math.floor((x + parallax) / blockWidth);
+    const firstIndex = Math.floor(parallax / blockWidth) - 1;
+    for (
+      let index = firstIndex;
+      Math.round(index * blockWidth - parallax) < width + blockWidth;
+      index += 1
+    ) {
+      const x = Math.round(index * blockWidth - parallax);
       const buildingHeight = 64 + Math.abs((index * 47) % 125);
       const top = height * 0.69 - buildingHeight;
       context.fillStyle =
