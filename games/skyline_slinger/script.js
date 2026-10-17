@@ -53,6 +53,7 @@
       x: x + buildingWidth * (0.63 + random() * 0.17),
       y: Math.max(34, top - 65 - random() * 55),
     });
+    addPortraitSwingPoints(building);
     for (let index = 0; index < 5; index += 1) {
       stars.push({
         x: x + buildingWidth * (0.12 + index * 0.18 + random() * 0.06),
@@ -61,6 +62,22 @@
         phase: random() * Math.PI * 2,
       });
     }
+  }
+
+  function isMobilePortrait() {
+    return height > width && isTouchDevice();
+  }
+
+  function addPortraitSwingPoints(building) {
+    if (!isMobilePortrait() || building.hasPortraitSwingPoints) return;
+
+    for (const position of [0.25]) {
+      anchors.push({
+        x: building.x + building.width * position,
+        y: Math.max(34, building.top - 65 - random() * 55),
+      });
+    }
+    building.hasPortraitSwingPoints = true;
   }
 
   function extendWorld() {
@@ -203,6 +220,7 @@
       gameHud.hidden = true;
       touchControl.hidden = true;
     }
+    if (isMobilePortrait()) buildings.forEach(addPortraitSwingPoints);
   }
 
   function attachWeb() {
