@@ -11,7 +11,7 @@ const poopLayer = document.getElementById("poop-layer");
 let previousOutputValue = outputEl.value;
 let shakeFrame;
 let calculatorNoticeTimer;
-let clearPoopTimer;
+let stopPoopTimer;
 let poopTimer;
 let clearClickCount = 0;
 
@@ -41,7 +41,7 @@ const spawnPoopParticle = () => {
 
 const clearPoopStorm = () => {
   clearInterval(poopTimer);
-  clearTimeout(clearPoopTimer);
+  clearTimeout(stopPoopTimer);
   poopLayer.replaceChildren();
 };
 
@@ -49,7 +49,11 @@ const startPoopStorm = () => {
   clearPoopStorm();
   spawnPoopParticle();
   poopTimer = setInterval(spawnPoopParticle, 100);
-  clearPoopTimer = setTimeout(clearPoopStorm, 10000);
+  stopPoopTimer = setTimeout(() => {
+    clearInterval(poopTimer);
+    poopTimer = null;
+    stopPoopTimer = null;
+  }, 6000);
 };
 
 const showCalculatorNotice = (message) => {
