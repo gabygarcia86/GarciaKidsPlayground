@@ -48,12 +48,12 @@
     buildings.push(building);
     anchors.push({
       x: x + buildingWidth * (0.63 + random() * 0.17),
-      y: Math.max(38, top - 95 - random() * 75),
+      y: Math.max(34, top - 65 - random() * 55),
     });
     for (let index = 0; index < 5; index += 1) {
       stars.push({
         x: x + buildingWidth * (0.12 + index * 0.18 + random() * 0.06),
-        y: Math.max(42, top - 20 - random() * 38),
+        y: Math.max(30, top - 12),
         collected: false,
         phase: random() * Math.PI * 2,
       });
@@ -62,14 +62,14 @@
 
   function extendWorld() {
     if (buildings.length === 0) {
-      addBuilding(-150, 480, height * 0.66);
+      addBuilding(-150, 480, height * 0.57);
     }
     while (buildings[buildings.length - 1].x +
       buildings[buildings.length - 1].width < player.x + width * 3) {
       const previous = buildings[buildings.length - 1];
       const gap = 100 + random() * 85;
       const buildingWidth = 205 + random() * 150;
-      const top = height * (0.52 + random() * 0.15);
+      const top = height * (0.42 + random() * 0.13);
       addBuilding(previous.x + previous.width + gap, buildingWidth, top);
     }
   }
@@ -88,7 +88,7 @@
     collectedStars = 0;
     player = {
       x: 48,
-      y: height * 0.66 - heroRadius,
+      y: height * 0.57 - heroRadius,
       vx: 4.8,
       vy: 0,
       grounded: true,
@@ -230,7 +230,10 @@
   }
 
   function endSwing() {
-    if (attachedAnchor) playTone(300, 0.07);
+    if (attachedAnchor) {
+      playTone(300, 0.07);
+      player.vy = Math.min(player.vy, -13);
+    }
     releaseWeb();
   }
 
@@ -472,14 +475,40 @@
     const x = anchor.x - cameraX;
     if (x < -25 || x > width + 25) return;
     const pulse = reducedMotion.matches ? 1 : 1 + Math.sin(time * 0.006 + anchor.x) * 0.12;
-    context.fillStyle = "rgba(255, 255, 255, .24)";
+    context.fillStyle = "rgba(255, 65, 86, .2)";
     context.beginPath();
-    context.arc(x, anchor.y, 12 * pulse, 0, Math.PI * 2);
+    context.arc(x, anchor.y, 17 * pulse, 0, Math.PI * 2);
     context.fill();
-    context.fillStyle = "#fff";
+    context.save();
+    context.translate(x, anchor.y);
+    context.strokeStyle = "#a71938";
+    context.lineWidth = 2.4;
+    context.lineCap = "round";
+    context.lineJoin = "round";
     context.beginPath();
-    context.arc(x, anchor.y, 4.5, 0, Math.PI * 2);
+    for (const side of [-1, 1]) {
+      for (const leg of [-1, 0, 1, 2]) {
+        const startY = -7 + leg * 4.5;
+        const kneeY = startY + (leg < 1 ? -4 : 4);
+        context.moveTo(side * 4, startY);
+        context.lineTo(side * 9, kneeY);
+        context.lineTo(side * 13, kneeY + (leg < 1 ? -2 : 2));
+      }
+    }
+    context.stroke();
+    context.fillStyle = "#f04455";
+    context.beginPath();
+    context.ellipse(0, 1, 5.4, 7.5, 0, 0, Math.PI * 2);
     context.fill();
+    context.beginPath();
+    context.arc(0, -6, 3.7, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = "#fff4ee";
+    context.beginPath();
+    context.ellipse(-1.5, -6.5, 1, 1.5, -0.25, 0, Math.PI * 2);
+    context.ellipse(1.5, -6.5, 1, 1.5, 0.25, 0, Math.PI * 2);
+    context.fill();
+    context.restore();
   }
 
   function drawHero() {
