@@ -26,7 +26,8 @@
     <main class="drawing-app">
       <header class="drawing-header">
         <a class="home-link" href="../../index.html"
-          aria-label="Back to Garcia Kids Playground home">← <span>Home</span></a>
+          aria-label="Back to Garcia Kids Playground home">←
+          <span>Home</span></a>
         <div class="drawing-title">
           <span class="title-sparkle" aria-hidden="true">✦</span>
           <div>
@@ -47,6 +48,10 @@
               <button class="tool-button is-active" type="button"
                 data-tool="pencil" aria-pressed="true">
                 <span aria-hidden="true">✏️</span><span>Draw</span>
+              </button>
+              <button class="tool-button" type="button" data-tool="fill"
+                aria-pressed="false">
+                <span aria-hidden="true">🪣</span><span>Fill</span>
               </button>
               <button class="tool-button" type="button" data-tool="eraser"
                 aria-pressed="false">
@@ -88,7 +93,8 @@
           </div>
 
           <div class="tool-group brush-group">
-            <label for="brush-size">Brush size <span id="brush-size-value">8</span></label>
+            <label for="brush-size">Brush size <span
+                id="brush-size-value">8</span></label>
             <input id="brush-size" type="range" min="2" max="32" value="8">
           </div>
 
@@ -134,14 +140,17 @@
           </div>
           <div class="paper-wrap">
             <canvas id="drawing-canvas" aria-label="Drawing canvas"
-              role="img">Your browser does not support the drawing canvas.</canvas>
+              role="img">Your browser does not support the drawing
+              canvas.</canvas>
           </div>
-          <p class="canvas-tip">Tip: use your finger, mouse, or a stylus to draw!</p>
+          <p class="canvas-tip">Tip: use your finger, mouse, or a stylus to
+            draw!</p>
         </div>
       </section>
     </main>
 
     <footer class="site-footer"></footer>
-    <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
+    <div class="notice" id="notice" role="status" aria-live="polite"
+      hidden></div>
   </body>
 </html>

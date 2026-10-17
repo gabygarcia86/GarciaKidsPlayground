@@ -137,7 +137,7 @@ body.drawing-page {
 
 .tool-buttons {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 9px;
 }
 
@@ -355,6 +355,10 @@ body.drawing-page {
 
 #drawing-canvas.is-sticker-mode {
   cursor: copy;
+}
+
+#drawing-canvas.is-fill-mode {
+  cursor: cell;
 }
 
 .canvas-tip {

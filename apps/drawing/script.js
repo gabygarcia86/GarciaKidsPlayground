@@ -22,6 +22,74 @@ function updateHistoryButtons() {
   redoButton.disabled = redoItems.length === 0;
 }
 
+function fillArea(item) {
+  const width = canvas.width;
+  const height = canvas.height;
+  const seedX = Math.min(width - 1, Math.floor(item.x * width));
+  const seedY = Math.min(height - 1, Math.floor(item.y * height));
+  const image = context.getImageData(0, 0, width, height);
+  const source = new Uint8ClampedArray(image.data);
+  const visited = new Uint8Array(width * height);
+  const seedIndex = (seedY * width + seedX) * 4;
+  const targetRed = source[seedIndex];
+  const targetGreen = source[seedIndex + 1];
+  const targetBlue = source[seedIndex + 2];
+  const fillRed = parseInt(item.color.slice(1, 3), 16);
+  const fillGreen = parseInt(item.color.slice(3, 5), 16);
+  const fillBlue = parseInt(item.color.slice(5, 7), 16);
+  const tolerance = 24;
+  const stack = [seedY * width + seedX];
+
+  function matches(x, y) {
+    const pixel = y * width + x;
+    if (visited[pixel]) return false;
+    const index = pixel * 4;
+    return Math.abs(source[index] - targetRed) <= tolerance
+      && Math.abs(source[index + 1] - targetGreen) <= tolerance
+      && Math.abs(source[index + 2] - targetBlue) <= tolerance;
+  }
+
+  while (stack.length > 0) {
+    const point = stack.pop();
+    const x = point % width;
+    const y = Math.floor(point / width);
+    if (!matches(x, y)) continue;
+
+    let left = x;
+    while (left > 0 && matches(left - 1, y)) left -= 1;
+
+    let scanAbove = false;
+    let scanBelow = false;
+    for (let scanX = left; scanX < width && matches(scanX, y); scanX += 1) {
+      const pixel = y * width + scanX;
+      const index = pixel * 4;
+      visited[pixel] = 1;
+      image.data[index] = fillRed;
+      image.data[index + 1] = fillGreen;
+      image.data[index + 2] = fillBlue;
+
+      if (y > 0) {
+        if (matches(scanX, y - 1)) {
+          if (!scanAbove) stack.push((y - 1) * width + scanX);
+          scanAbove = true;
+        } else {
+          scanAbove = false;
+        }
+      }
+      if (y < height - 1) {
+        if (matches(scanX, y + 1)) {
+          if (!scanBelow) stack.push((y + 1) * width + scanX);
+          scanBelow = true;
+        } else {
+          scanBelow = false;
+        }
+      }
+    }
+  }
+
+  context.putImageData(image, 0, 0);
+}
+
 function showNotice(message) {
   drawingNotice.textContent = message;
   drawingNotice.hidden = false;
@@ -40,6 +108,11 @@ function drawItem(item) {
     context.textBaseline = "middle";
     context.fillText(item.emoji, item.x * canvas.width, item.y * canvas.height);
     context.restore();
+    return;
+  }
+
+  if (item.type === "fill") {
+    fillArea(item);
     return;
   }
 
@@ -107,6 +180,18 @@ function addSticker(point) {
   updateHistoryButtons();
 }
 
+function addFill(point) {
+  items.push({
+    type: "fill",
+    x: point.x,
+    y: point.y,
+    color,
+  });
+  redoItems = [];
+  redraw();
+  updateHistoryButtons();
+}
+
 canvas.addEventListener("pointerdown", (event) => {
   if (event.button !== undefined && event.button !== 0) return;
   event.preventDefault();
@@ -115,6 +200,11 @@ canvas.addEventListener("pointerdown", (event) => {
 
   if (activeSticker) {
     addSticker(point);
+    return;
+  }
+
+  if (activeTool === "fill") {
+    addFill(point);
     return;
   }
 
@@ -154,6 +244,7 @@ document.querySelectorAll(".tool-button").forEach((button) => {
     activeTool = button.dataset.tool;
     activeSticker = "";
     canvas.classList.remove("is-sticker-mode");
+    canvas.classList.toggle("is-fill-mode", activeTool === "fill");
     document.querySelectorAll(".tool-button").forEach((toolButton) => {
       const selected = toolButton === button;
       toolButton.classList.toggle("is-active", selected);
@@ -203,6 +294,7 @@ document.querySelectorAll(".sticker-button").forEach((button) => {
     });
     if (activeSticker) {
       activeTool = "pencil";
+      canvas.classList.remove("is-fill-mode");
       document.querySelectorAll(".tool-button").forEach((toolButton) => {
         const selected = toolButton.dataset.tool === activeTool;
         toolButton.classList.toggle("is-active", selected);
