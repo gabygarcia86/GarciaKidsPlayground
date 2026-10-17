@@ -25,6 +25,7 @@
   let buildings = [];
   let anchors = [];
   let stars = [];
+  let enemies = [];
   let player;
   let cameraX = 0;
   let distance = 0;
@@ -65,6 +66,15 @@
         phase: random() * Math.PI * 2,
       });
     }
+    const enemyX = Math.max(
+      x + buildingWidth * (0.12 + random() * 0.76),
+      player.x + heroRadius + 90,
+    );
+    enemies.push({
+      x: enemyX,
+      y: height * (0.14 + random() * 0.72),
+      phase: random() * Math.PI * 2,
+    });
   }
 
   function isMobilePortrait() {
@@ -108,6 +118,7 @@
     buildings = [];
     anchors = [];
     stars = [];
+    enemies = [];
     attachedAnchor = null;
     ropeLength = 0;
     swingHeld = false;
@@ -295,12 +306,13 @@
     }
   }
 
-  function finishRun() {
+  function finishRun(message = "What a ride!") {
     if (state !== "playing") return;
     state = "over";
     swingHeld = false;
     attachedAnchor = null;
     touchControl.hidden = true;
+    document.getElementById("gameover-title").textContent = message;
     document.getElementById("final-distance").textContent = Math.floor(
       distance / 10,
     );
@@ -441,6 +453,13 @@
       }
     }
 
+    for (const enemy of enemies) {
+      if (Math.hypot(player.x - enemy.x, player.y - enemy.y) < 29) {
+        finishRun("The Green Goblin Got You!");
+        return;
+      }
+    }
+
     distance = Math.max(distance, player.x - 48);
     cameraX = Math.max(0, player.x - width * 0.29);
     const worldStart = player.x - width * 2;
@@ -449,9 +468,10 @@
     );
     anchors = anchors.filter((anchor) => anchor.x > worldStart);
     stars = stars.filter((star) => star.x > worldStart);
+    enemies = enemies.filter((enemy) => enemy.x > worldStart);
     updateHud();
 
-    if (player.y > height + 115) finishRun();
+    if (player.y > height + 115) finishRun("OUCH you hit the floor!");
   }
 
   function roundedRect(x, y, rectWidth, rectHeight, radius) {
@@ -726,6 +746,71 @@
     context.restore();
   }
 
+  function drawGoblin(enemy, time) {
+    const x = enemy.x - cameraX;
+    if (x < -35 || x > width + 35) return;
+    const bob = reducedMotion.matches
+      ? 0
+      : Math.sin(time * 0.004 + enemy.phase) * 2;
+    context.save();
+    context.translate(x, enemy.y + bob);
+    context.lineCap = "round";
+    context.lineJoin = "round";
+
+    context.strokeStyle = "#245b27";
+    context.lineWidth = 6;
+    context.beginPath();
+    context.moveTo(-5, 9);
+    context.lineTo(-9, 19);
+    context.lineTo(-13, 21);
+    context.moveTo(5, 9);
+    context.lineTo(9, 19);
+    context.lineTo(13, 21);
+    context.moveTo(-8, -1);
+    context.lineTo(-15, 5);
+    context.moveTo(8, -1);
+    context.lineTo(15, 5);
+    context.stroke();
+
+    context.fillStyle = "#3f9b45";
+    context.beginPath();
+    context.ellipse(0, 4, 10, 14, 0, 0, Math.PI * 2);
+    context.fill();
+
+    context.fillStyle = "#55bd50";
+    context.beginPath();
+    context.moveTo(-7, -16);
+    context.lineTo(-20, -21);
+    context.lineTo(-11, -10);
+    context.closePath();
+    context.moveTo(7, -16);
+    context.lineTo(20, -21);
+    context.lineTo(11, -10);
+    context.closePath();
+    context.fill();
+    context.beginPath();
+    context.ellipse(0, -13, 11, 10, 0, 0, Math.PI * 2);
+    context.fill();
+
+    context.fillStyle = "#fff0a3";
+    context.beginPath();
+    context.ellipse(-4, -14, 2.7, 3.2, -0.12, 0, Math.PI * 2);
+    context.ellipse(4, -14, 2.7, 3.2, 0.12, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = "#252c22";
+    context.beginPath();
+    context.arc(-4, -14, 1.2, 0, Math.PI * 2);
+    context.arc(4, -14, 1.2, 0, Math.PI * 2);
+    context.fill();
+    context.strokeStyle = "#244b25";
+    context.lineWidth = 2;
+    context.beginPath();
+    context.moveTo(-4, -7);
+    context.lineTo(4, -7);
+    context.stroke();
+    context.restore();
+  }
+
   function drawHero() {
     if (!player) return;
     const x = player.x - cameraX;
@@ -803,6 +888,7 @@
     if (!width || !height) return;
     drawBackground(time);
     drawBuildings(time);
+    for (const enemy of enemies) drawGoblin(enemy, time);
     for (const anchor of anchors) drawAnchor(anchor, time);
     drawWeb();
     drawHero();
