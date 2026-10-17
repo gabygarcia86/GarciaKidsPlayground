@@ -3,12 +3,19 @@ const canvas = document.getElementById("drawing-canvas");
 const context = canvas.getContext("2d");
 const brushSizeInput = document.getElementById("brush-size");
 const brushSizeValue = document.getElementById("brush-size-value");
+const zoomOutButton = document.getElementById("zoom-out-button");
+const zoomInButton = document.getElementById("zoom-in-button");
+const zoomValue = document.getElementById("zoom-value");
 const undoButton = document.getElementById("undo-button");
 const redoButton = document.getElementById("redo-button");
 const drawingNotice = document.getElementById("notice");
 
+const minZoom = 0.5;
+const maxZoom = 2;
+const zoomStep = 0.25;
 let color = "#27324b";
 let brushSize = Number(brushSizeInput.value);
+let zoom = 1;
 let activeTool = "pencil";
 let activeSticker = "";
 let drawing = false;
@@ -20,6 +27,13 @@ let noticeTimer;
 function updateHistoryButtons() {
   undoButton.disabled = items.length === 0;
   redoButton.disabled = redoItems.length === 0;
+}
+
+function updateZoom() {
+  canvas.style.transform = `scale(${zoom})`;
+  zoomValue.textContent = `${Math.round(zoom * 100)}%`;
+  zoomOutButton.disabled = zoom <= minZoom;
+  zoomInButton.disabled = zoom >= maxZoom;
 }
 
 function fillArea(item) {
@@ -148,14 +162,15 @@ function redraw() {
 }
 
 function resizeCanvas() {
-  const bounds = canvas.getBoundingClientRect();
-  if (!bounds.width || !bounds.height) return;
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+  if (!width || !height) return;
   const pixelRatio = window.devicePixelRatio || 1;
-  const width = Math.round(bounds.width * pixelRatio);
-  const height = Math.round(bounds.height * pixelRatio);
-  if (canvas.width === width && canvas.height === height) return;
-  canvas.width = width;
-  canvas.height = height;
+  const pixelWidth = Math.round(width * pixelRatio);
+  const pixelHeight = Math.round(height * pixelRatio);
+  if (canvas.width === pixelWidth && canvas.height === pixelHeight) return;
+  canvas.width = pixelWidth;
+  canvas.height = pixelHeight;
   redraw();
 }
 
@@ -238,6 +253,16 @@ function finishStroke() {
 canvas.addEventListener("pointerup", finishStroke);
 canvas.addEventListener("pointercancel", finishStroke);
 canvas.addEventListener("lostpointercapture", finishStroke);
+
+zoomOutButton.addEventListener("click", () => {
+  zoom = Math.max(minZoom, zoom - zoomStep);
+  updateZoom();
+});
+
+zoomInButton.addEventListener("click", () => {
+  zoom = Math.min(maxZoom, zoom + zoomStep);
+  updateZoom();
+});
 
 document.querySelectorAll(".tool-button").forEach((button) => {
   button.addEventListener("click", () => {
@@ -351,5 +376,6 @@ document.getElementById("save-button").addEventListener("click", () => {
 
 new ResizeObserver(resizeCanvas).observe(canvas);
 resizeCanvas();
+updateZoom();
 updateHistoryButtons();
 })();
