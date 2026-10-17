@@ -41,6 +41,7 @@
   let lastHudDistance = -1;
   let lastHudStars = -1;
   let lastHudTime = -1;
+  let timeOfDay = "day";
   const poopLayer = document.getElementById("poop-layer");
 
   function seededRandom() {
@@ -101,6 +102,7 @@
 
   function resetRun() {
     clearPoopStorm();
+    timeOfDay = Math.random() < 0.5 ? "day" : "night";
     worldSeed = 24681357 + Math.floor(Math.random() * 1000000);
     random = seededRandom;
     buildings = [];
@@ -500,31 +502,57 @@
 
   function drawBackground(time) {
     const sky = context.createLinearGradient(0, 0, 0, height);
-    sky.addColorStop(0, "#72c5f2");
-    sky.addColorStop(0.6, "#a7e2ee");
-    sky.addColorStop(1, "#f8d9c4");
+    if (timeOfDay === "night") {
+      sky.addColorStop(0, "#101a3c");
+      sky.addColorStop(0.62, "#27345f");
+      sky.addColorStop(1, "#526080");
+    } else {
+      sky.addColorStop(0, "#72c5f2");
+      sky.addColorStop(0.6, "#a7e2ee");
+      sky.addColorStop(1, "#f8d9c4");
+    }
     context.fillStyle = sky;
     context.fillRect(0, 0, width, height);
 
-    const sunX = width * 0.76 - ((cameraX * 0.035) % width);
-    context.fillStyle = "rgba(255, 236, 151, .72)";
-    context.beginPath();
-    context.arc((sunX + width) % width, height * 0.23, 43, 0, Math.PI * 2);
-    context.fill();
-
-    context.fillStyle = "rgba(255, 255, 255, .66)";
     const drift = (time * 0.009) % (width + 130);
-    drawCloud(width - drift + 35, height * 0.22, 0.85);
-    drawCloud(
-      ((width * 0.42 + drift * 0.48) % (width + 90)) - 35,
-      height * 0.34,
-      0.62,
-    );
-    drawCloud(
-      ((width * 0.78 + drift * 0.32) % (width + 120)) - 40,
-      height * 0.14,
-      0.54,
-    );
+    if (timeOfDay === "night") {
+      const moonX = width * 0.76 - ((cameraX * 0.035) % width);
+      context.fillStyle = "rgba(229, 239, 255, .86)";
+      context.beginPath();
+      context.arc((moonX + width) % width, height * 0.23, 31, 0, Math.PI * 2);
+      context.fill();
+      context.fillStyle = "rgba(186, 205, 240, .58)";
+      context.beginPath();
+      context.arc((moonX + width) % width - 10, height * 0.22, 5, 0, Math.PI * 2);
+      context.arc((moonX + width) % width + 11, height * 0.25, 4, 0, Math.PI * 2);
+      context.fill();
+      for (let index = 0; index < 28; index += 1) {
+        const starX = ((index * 137.5 - cameraX * 0.025) % width + width) % width;
+        const starY = height * (0.05 + ((index * 47) % 42) / 100);
+        const starSize = index % 5 === 0 ? 2 : 1.2;
+        context.fillStyle = `rgba(255, 255, 255, ${0.45 + (index % 4) * 0.12})`;
+        context.fillRect(starX, starY, starSize, starSize);
+      }
+    } else {
+      const sunX = width * 0.76 - ((cameraX * 0.035) % width);
+      context.fillStyle = "rgba(255, 236, 151, .72)";
+      context.beginPath();
+      context.arc((sunX + width) % width, height * 0.23, 43, 0, Math.PI * 2);
+      context.fill();
+
+      context.fillStyle = "rgba(255, 255, 255, .66)";
+      drawCloud(width - drift + 35, height * 0.22, 0.85);
+      drawCloud(
+        ((width * 0.42 + drift * 0.48) % (width + 90)) - 35,
+        height * 0.34,
+        0.62,
+      );
+      drawCloud(
+        ((width * 0.78 + drift * 0.32) % (width + 120)) - 40,
+        height * 0.14,
+        0.54,
+      );
+    }
 
     drawDistantCity();
   }
@@ -538,9 +566,18 @@
       const buildingHeight = 64 + Math.abs((index * 47) % 125);
       const top = height * 0.69 - buildingHeight;
       context.fillStyle =
-        index % 2 ? "rgba(91, 123, 177, .25)" : "rgba(85, 117, 170, .2)";
+        timeOfDay === "night"
+          ? index % 2
+            ? "rgba(24, 34, 68, .78)"
+            : "rgba(31, 43, 79, .76)"
+          : index % 2
+            ? "rgba(91, 123, 177, .25)"
+            : "rgba(85, 117, 170, .2)";
       context.fillRect(x, top, blockWidth - 5, height - top);
-      context.fillStyle = "rgba(255, 239, 189, .42)";
+      context.fillStyle =
+        timeOfDay === "night"
+          ? "rgba(255, 224, 145, .72)"
+          : "rgba(255, 239, 189, .42)";
       for (let wx = x + 12; wx < x + blockWidth - 12; wx += 20) {
         for (let wy = top + 16; wy < height - 8; wy += 25) {
           context.fillRect(wx, wy, 7, 9);
@@ -554,17 +591,26 @@
       const x = building.x - cameraX;
       if (x > width + 20 || x + building.width < -30) continue;
       const buildingHeight = height - building.top + 200;
-      const palette = ["#263467", "#303872", "#29335f", "#354078"];
+      const palette =
+        timeOfDay === "night"
+          ? ["#111a38", "#172044", "#141d3d", "#1c254b"]
+          : ["#263467", "#303872", "#29335f", "#354078"];
       const shade = Math.abs(Math.floor(building.x / 17)) % palette.length;
       const gradient = context.createLinearGradient(x, building.top, x, height);
       gradient.addColorStop(0, palette[shade]);
-      gradient.addColorStop(1, "#182448");
+      gradient.addColorStop(1, timeOfDay === "night" ? "#0b132b" : "#182448");
       context.fillStyle = gradient;
       context.fillRect(x, building.top, building.width, buildingHeight);
 
-      context.fillStyle = "rgba(255, 255, 255, .12)";
+      context.fillStyle =
+        timeOfDay === "night"
+          ? "rgba(191, 209, 255, .16)"
+          : "rgba(255, 255, 255, .12)";
       context.fillRect(x, building.top, building.width, 5);
-      context.fillStyle = "rgba(133, 217, 255, .58)";
+      context.fillStyle =
+        timeOfDay === "night"
+          ? "rgba(133, 194, 255, .8)"
+          : "rgba(133, 217, 255, .58)";
       for (
         let windowOffset = 15;
         windowOffset < building.width - 12;
@@ -576,13 +622,22 @@
           const lit = Math.sin(worldX * 0.17 + wy * 0.08) > -0.25;
           if (lit) {
             context.fillRect(wx, wy, 11, 14);
-            context.fillStyle = "rgba(210, 242, 255, .2)";
+            context.fillStyle =
+              timeOfDay === "night"
+                ? "rgba(210, 231, 255, .4)"
+                : "rgba(210, 242, 255, .2)";
             context.fillRect(wx + 2, wy + 2, 2, 10);
-            context.fillStyle = "rgba(133, 217, 255, .58)";
+            context.fillStyle =
+              timeOfDay === "night"
+                ? "rgba(133, 194, 255, .8)"
+                : "rgba(133, 217, 255, .58)";
           }
         }
       }
-      context.fillStyle = "rgba(255, 220, 117, .5)";
+      context.fillStyle =
+        timeOfDay === "night"
+          ? "rgba(255, 218, 125, .72)"
+          : "rgba(255, 220, 117, .5)";
       context.fillRect(
         x + 11,
         building.top + 7,
