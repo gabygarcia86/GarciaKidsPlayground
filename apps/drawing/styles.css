@@ -203,7 +203,20 @@ body.drawing-page {
 }
 
 .shape-button {
-  padding-inline: 5px;
+  display: grid;
+  min-height: 42px;
+  place-items: center;
+  padding: 5px;
+}
+
+.shape-button svg {
+  width: 25px;
+  height: 25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.4;
 }
 
 .color-palette {
