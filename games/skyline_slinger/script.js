@@ -13,7 +13,7 @@
   const toast = document.getElementById("game-toast");
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  const gravity = 0.43;
+  const gravity = 0.55;
   const heroRadius = 15;
   let width = 0;
   let height = 0;
@@ -33,10 +33,13 @@
   let ropeLength = 0;
   let swingHeld = false;
   let toastTimer;
+  let poopTimer = null;
+  let poopStopTimer = null;
   let soundEnabled = false;
   let audioContext = null;
   let lastHudDistance = -1;
   let lastHudStars = -1;
+  const poopLayer = document.getElementById("poop-layer");
 
   function seededRandom() {
     worldSeed = (worldSeed * 1664525 + 1013904223) >>> 0;
@@ -64,8 +67,11 @@
     if (buildings.length === 0) {
       addBuilding(-150, 480, height * 0.57);
     }
-    while (buildings[buildings.length - 1].x +
-      buildings[buildings.length - 1].width < player.x + width * 3) {
+    while (
+      buildings[buildings.length - 1].x +
+        buildings[buildings.length - 1].width <
+      player.x + width * 3
+    ) {
       const previous = buildings[buildings.length - 1];
       const gap = 100 + random() * 85;
       const buildingWidth = 205 + random() * 150;
@@ -75,6 +81,7 @@
   }
 
   function resetRun() {
+    clearPoopStorm();
     worldSeed = 24681357 + Math.floor(Math.random() * 1000000);
     random = seededRandom;
     buildings = [];
@@ -136,7 +143,8 @@
   function playTone(frequency, duration = 0.12) {
     if (!soundEnabled) return;
     if (!audioContext) {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      const AudioContextClass =
+        window.AudioContext || window.webkitAudioContext;
       if (!AudioContextClass) {
         showToast("Sound is not available in this browser.");
         soundEnabled = false;
@@ -150,8 +158,14 @@
     oscillator.type = "sine";
     oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
     gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.12, audioContext.currentTime + 0.015);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+    gain.gain.exponentialRampToValueAtTime(
+      0.12,
+      audioContext.currentTime + 0.015,
+    );
+    gain.gain.exponentialRampToValueAtTime(
+      0.0001,
+      audioContext.currentTime + duration,
+    );
     oscillator.connect(gain);
     gain.connect(audioContext.destination);
     oscillator.start();
@@ -258,11 +272,63 @@
     swingHeld = false;
     attachedAnchor = null;
     touchControl.hidden = true;
-    document.getElementById("final-distance").textContent =
-      Math.floor(distance / 10);
+    document.getElementById("final-distance").textContent = Math.floor(
+      distance / 10,
+    );
     document.getElementById("final-stars").textContent = collectedStars;
     gameoverScreen.hidden = false;
+    startPoopStorm();
     playTone(240, 0.22);
+  }
+
+  function spawnPoopParticle() {
+    const poop = document.createElement("span");
+    poop.className = "poop-particle";
+    poop.textContent = "💩";
+    poop.style.left = `${Math.random() * 96}%`;
+    poop.style.setProperty(
+      "--poop-size",
+      `${(Math.random() * 1.7 + 1.5).toFixed(2)}rem`,
+    );
+    poop.style.setProperty(
+      "--poop-duration",
+      `${(Math.random() * 3 + 4.3).toFixed(2)}s`,
+    );
+    poop.style.setProperty(
+      "--poop-drift",
+      `${Math.floor(Math.random() * 181) - 90}px`,
+    );
+
+    poopLayer.appendChild(poop);
+    poop.addEventListener("animationend", (event) => {
+      if (event.animationName === "poopFall") poop.remove();
+    });
+    setTimeout(() => poop.remove(), 10000);
+  }
+
+  function startPoopStorm() {
+    clearPoopStorm();
+    spawnPoopParticle();
+    poopTimer = setInterval(spawnPoopParticle, 260);
+    poopStopTimer = setTimeout(() => {
+      if (poopTimer !== null) {
+        clearInterval(poopTimer);
+        poopTimer = null;
+      }
+      poopStopTimer = null;
+    }, 10000);
+  }
+
+  function clearPoopStorm() {
+    if (poopTimer !== null) {
+      clearInterval(poopTimer);
+      poopTimer = null;
+    }
+    if (poopStopTimer !== null) {
+      clearTimeout(poopStopTimer);
+      poopStopTimer = null;
+    }
+    poopLayer.replaceChildren();
   }
 
   function update(delta) {
@@ -302,16 +368,19 @@
     if (attachedAnchor) {
       player.rotation = Math.atan2(player.vy, player.vx) * 0.55;
     } else {
-      player.rotation += (Math.max(-0.34, Math.min(0.34, player.vx * 0.015)) -
-        player.rotation) * 0.05 * step;
+      player.rotation +=
+        (Math.max(-0.34, Math.min(0.34, player.vx * 0.015)) - player.rotation) *
+        0.05 *
+        step;
     }
 
     if (player.vy >= 0) {
-      const roof = buildings.find((building) =>
-        player.x + heroRadius > building.x &&
-        player.x - heroRadius < building.x + building.width &&
-        player.y - heroRadius < building.top &&
-        player.y + heroRadius >= building.top,
+      const roof = buildings.find(
+        (building) =>
+          player.x + heroRadius > building.x &&
+          player.x - heroRadius < building.x + building.width &&
+          player.y - heroRadius < building.top &&
+          player.y + heroRadius >= building.top,
       );
       if (roof) {
         player.y = roof.top - heroRadius;
@@ -340,8 +409,8 @@
     distance = Math.max(distance, player.x - 48);
     cameraX = Math.max(0, player.x - width * 0.29);
     const worldStart = player.x - width * 2;
-    buildings = buildings.filter((building) =>
-      building.x + building.width > worldStart,
+    buildings = buildings.filter(
+      (building) => building.x + building.width > worldStart,
     );
     anchors = anchors.filter((anchor) => anchor.x > worldStart);
     stars = stars.filter((star) => star.x > worldStart);
@@ -357,10 +426,42 @@
 
   function drawCloud(x, y, scale) {
     context.beginPath();
-    context.ellipse(x, y + 9 * scale, 33 * scale, 12 * scale, 0, 0, Math.PI * 2);
-    context.ellipse(x - 18 * scale, y + 3 * scale, 15 * scale, 14 * scale, 0, 0, Math.PI * 2);
-    context.ellipse(x + 2 * scale, y - 4 * scale, 19 * scale, 19 * scale, 0, 0, Math.PI * 2);
-    context.ellipse(x + 22 * scale, y + 3 * scale, 17 * scale, 13 * scale, 0, 0, Math.PI * 2);
+    context.ellipse(
+      x,
+      y + 9 * scale,
+      33 * scale,
+      12 * scale,
+      0,
+      0,
+      Math.PI * 2,
+    );
+    context.ellipse(
+      x - 18 * scale,
+      y + 3 * scale,
+      15 * scale,
+      14 * scale,
+      0,
+      0,
+      Math.PI * 2,
+    );
+    context.ellipse(
+      x + 2 * scale,
+      y - 4 * scale,
+      19 * scale,
+      19 * scale,
+      0,
+      0,
+      Math.PI * 2,
+    );
+    context.ellipse(
+      x + 22 * scale,
+      y + 3 * scale,
+      17 * scale,
+      13 * scale,
+      0,
+      0,
+      Math.PI * 2,
+    );
     context.fill();
   }
 
@@ -372,7 +473,7 @@
     context.fillStyle = sky;
     context.fillRect(0, 0, width, height);
 
-    const sunX = width * 0.76 - (cameraX * 0.035) % width;
+    const sunX = width * 0.76 - ((cameraX * 0.035) % width);
     context.fillStyle = "rgba(255, 236, 151, .72)";
     context.beginPath();
     context.arc((sunX + width) % width, height * 0.23, 43, 0, Math.PI * 2);
@@ -381,10 +482,16 @@
     context.fillStyle = "rgba(255, 255, 255, .66)";
     const drift = (time * 0.009) % (width + 130);
     drawCloud(width - drift + 35, height * 0.22, 0.85);
-    drawCloud((width * 0.42 + drift * 0.48) % (width + 90) - 35,
-      height * 0.34, 0.62);
-    drawCloud((width * 0.78 + drift * 0.32) % (width + 120) - 40,
-      height * 0.14, 0.54);
+    drawCloud(
+      ((width * 0.42 + drift * 0.48) % (width + 90)) - 35,
+      height * 0.34,
+      0.62,
+    );
+    drawCloud(
+      ((width * 0.78 + drift * 0.32) % (width + 120)) - 40,
+      height * 0.14,
+      0.54,
+    );
 
     drawDistantCity();
   }
@@ -397,7 +504,8 @@
       const index = Math.floor((x + parallax) / blockWidth);
       const buildingHeight = 64 + Math.abs((index * 47) % 125);
       const top = height * 0.69 - buildingHeight;
-      context.fillStyle = index % 2 ? "rgba(91, 123, 177, .25)" : "rgba(85, 117, 170, .2)";
+      context.fillStyle =
+        index % 2 ? "rgba(91, 123, 177, .25)" : "rgba(85, 117, 170, .2)";
       context.fillRect(x, top, blockWidth - 5, height - top);
       context.fillStyle = "rgba(255, 239, 189, .42)";
       for (let wx = x + 12; wx < x + blockWidth - 12; wx += 20) {
@@ -436,14 +544,21 @@
         }
       }
       context.fillStyle = "rgba(255, 220, 117, .5)";
-      context.fillRect(x + 11, building.top + 7, Math.min(building.width - 22, 26), 3);
+      context.fillRect(
+        x + 11,
+        building.top + 7,
+        Math.min(building.width - 22, 26),
+        3,
+      );
     }
 
     for (const star of stars) {
       if (star.collected) continue;
       const x = star.x - cameraX;
       if (x < -40 || x > width + 40) continue;
-      const bob = reducedMotion.matches ? 0 : Math.sin(time * 0.004 + star.phase) * 4;
+      const bob = reducedMotion.matches
+        ? 0
+        : Math.sin(time * 0.004 + star.phase) * 4;
       const y = star.y + bob;
       context.fillStyle = "rgba(255, 220, 90, .2)";
       context.beginPath();
@@ -456,7 +571,7 @@
   function drawStar(x, y, radius, fill) {
     context.beginPath();
     for (let point = 0; point < 10; point += 1) {
-      const angle = -Math.PI / 2 + point * Math.PI / 5;
+      const angle = -Math.PI / 2 + (point * Math.PI) / 5;
       const pointRadius = point % 2 === 0 ? radius : radius * 0.45;
       const px = x + Math.cos(angle) * pointRadius;
       const py = y + Math.sin(angle) * pointRadius;
@@ -474,7 +589,9 @@
   function drawAnchor(anchor, time) {
     const x = anchor.x - cameraX;
     if (x < -25 || x > width + 25) return;
-    const pulse = reducedMotion.matches ? 1 : 1 + Math.sin(time * 0.006 + anchor.x) * 0.12;
+    const pulse = reducedMotion.matches
+      ? 1
+      : 1 + Math.sin(time * 0.006 + anchor.x) * 0.12;
     context.fillStyle = "rgba(255, 65, 86, .2)";
     context.beginPath();
     context.arc(x, anchor.y, 17 * pulse, 0, Math.PI * 2);
@@ -624,7 +741,9 @@
   });
   swingButton.addEventListener("pointercancel", endSwing);
   swingButton.addEventListener("lostpointercapture", endSwing);
-  swingButton.addEventListener("contextmenu", (event) => event.preventDefault());
+  swingButton.addEventListener("contextmenu", (event) =>
+    event.preventDefault(),
+  );
 
   window.addEventListener("keydown", (event) => {
     if (event.code === "Space" && state === "playing") {
@@ -639,9 +758,15 @@
   });
 
   document.getElementById("start-button").addEventListener("click", resetRun);
-  document.getElementById("play-again-button").addEventListener("click", resetRun);
-  document.getElementById("pause-button").addEventListener("click", () => setPaused(true));
-  document.getElementById("resume-button").addEventListener("click", () => setPaused(false));
+  document
+    .getElementById("play-again-button")
+    .addEventListener("click", resetRun);
+  document
+    .getElementById("pause-button")
+    .addEventListener("click", () => setPaused(true));
+  document
+    .getElementById("resume-button")
+    .addEventListener("click", () => setPaused(false));
 
   document.getElementById("sound-button").addEventListener("click", (event) => {
     soundEnabled = !soundEnabled;
@@ -652,21 +777,36 @@
     if (soundEnabled) playTone(660, 0.1);
   });
 
-  document.getElementById("fullscreen-button").addEventListener("click", (event) => {
-    const button = event.currentTarget;
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => showToast("Could not exit full screen."));
-    } else if (stage.requestFullscreen) {
-      stage.requestFullscreen().catch(() => showToast("Full screen is not available."));
-    } else {
-      showToast("Full screen is not available in this browser.");
-    }
-    document.addEventListener("fullscreenchange", () => {
-      const isFullscreen = document.fullscreenElement === stage;
-      button.setAttribute("aria-label", isFullscreen ? "Exit full screen" : "Enter full screen");
-      button.title = isFullscreen ? "Exit full screen" : "Enter full screen";
-    }, { once: true });
-  });
+  document
+    .getElementById("fullscreen-button")
+    .addEventListener("click", (event) => {
+      const button = event.currentTarget;
+      if (document.fullscreenElement) {
+        document
+          .exitFullscreen()
+          .catch(() => showToast("Could not exit full screen."));
+      } else if (stage.requestFullscreen) {
+        stage
+          .requestFullscreen()
+          .catch(() => showToast("Full screen is not available."));
+      } else {
+        showToast("Full screen is not available in this browser.");
+      }
+      document.addEventListener(
+        "fullscreenchange",
+        () => {
+          const isFullscreen = document.fullscreenElement === stage;
+          button.setAttribute(
+            "aria-label",
+            isFullscreen ? "Exit full screen" : "Enter full screen",
+          );
+          button.title = isFullscreen
+            ? "Exit full screen"
+            : "Enter full screen";
+        },
+        { once: true },
+      );
+    });
 
   new ResizeObserver(resizeCanvas).observe(stage);
   resizeCanvas();
