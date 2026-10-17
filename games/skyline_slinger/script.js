@@ -257,7 +257,7 @@
       .sort((a, b) => a.distance - b.distance)[0];
 
     if (!nextAnchor) {
-      showToast("Keep moving to find a place to swing!");
+      showToast("Your flying!!!");
       return;
     }
 
