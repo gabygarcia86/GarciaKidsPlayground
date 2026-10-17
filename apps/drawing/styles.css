@@ -98,6 +98,8 @@ body.drawing-page {
 .home-link:focus-visible,
 .save-button:focus-visible,
 .tool-button:focus-visible,
+.shape-style-button:focus-visible,
+.shape-button:focus-visible,
 .color-swatch:focus-visible,
 .custom-color:focus-within,
 .sticker-button:focus-visible,
@@ -165,6 +167,43 @@ body.drawing-page {
   border-color: #7568db;
   background: #f2f0ff;
   color: #554ab4;
+}
+
+.shape-style {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-bottom: 11px;
+}
+
+.shape-style-button,
+.shape-button {
+  min-height: 36px;
+  border: 1px solid #e1e4ec;
+  border-radius: 10px;
+  background: #fff;
+  color: #4c5570;
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.shape-style-button.is-selected,
+.shape-button.is-selected {
+  border-color: #7568db;
+  background: #f2f0ff;
+  color: #554ab4;
+}
+
+.shape-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.shape-button {
+  padding-inline: 5px;
 }
 
 .color-palette {

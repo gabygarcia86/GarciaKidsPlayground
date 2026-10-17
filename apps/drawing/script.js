@@ -9,6 +9,8 @@
   const zoomValue = document.getElementById("zoom-value");
   const undoButton = document.getElementById("undo-button");
   const redoButton = document.getElementById("redo-button");
+  const shapeButtons = document.querySelectorAll(".shape-button");
+  const shapeStyleButtons = document.querySelectorAll(".shape-style-button");
   const drawingNotice = document.getElementById("notice");
 
   const minZoom = 0.5;
@@ -19,12 +21,15 @@
   let zoom = 1;
   let activeTool = "pencil";
   let activeSticker = "";
+  let activeShape = "";
+  let shapeStyle = "stroke";
   let drawing = false;
   let panning = false;
   let panX = 0;
   let panY = 0;
   let panStart = null;
   let currentStroke = null;
+  let currentShape = null;
   let items = [];
   let redoItems = [];
   let noticeTimer;
@@ -119,6 +124,75 @@
     context.putImageData(image, 0, 0);
   }
 
+  function drawShape(item) {
+    const startX = item.start.x * canvas.width;
+    const startY = item.start.y * canvas.height;
+    const endX = item.end.x * canvas.width;
+    const endY = item.end.y * canvas.height;
+    const left = Math.min(startX, endX);
+    const top = Math.min(startY, endY);
+    const width = Math.abs(endX - startX);
+    const height = Math.abs(endY - startY);
+    const pixelRatio = canvas.width / canvas.clientWidth;
+
+    context.save();
+    context.lineWidth = item.size * pixelRatio;
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.strokeStyle = item.color;
+    context.fillStyle = item.color;
+    context.beginPath();
+
+    if (item.shape === "square") {
+      const side = Math.min(width, height);
+      context.rect(
+        startX <= endX ? left : left + width - side,
+        startY <= endY ? top : top + height - side,
+        side,
+        side,
+      );
+    } else if (item.shape === "rectangle") {
+      context.rect(left, top, width, height);
+    } else if (item.shape === "circle") {
+      const diameter = Math.min(width, height);
+      context.ellipse(
+        (startX + endX) / 2,
+        (startY + endY) / 2,
+        diameter / 2,
+        diameter / 2,
+        0,
+        0,
+        Math.PI * 2,
+      );
+    } else if (item.shape === "line") {
+      context.moveTo(startX, startY);
+      context.lineTo(endX, endY);
+    } else {
+      const sides = item.shape === "triangle" ? 3
+        : item.shape === "star" ? 10
+        : item.shape === "hexagon" ? 6
+        : 8;
+      const centerX = (startX + endX) / 2;
+      const centerY = (startY + endY) / 2;
+      const radiusX = width / 2;
+      const radiusY = height / 2;
+
+      for (let index = 0; index < sides; index += 1) {
+        const angle = -Math.PI / 2 + (index * Math.PI * 2) / sides;
+        const radius = item.shape === "star" && index % 2 === 1 ? 0.42 : 1;
+        const x = centerX + Math.cos(angle) * radiusX * radius;
+        const y = centerY + Math.sin(angle) * radiusY * radius;
+        if (index === 0) context.moveTo(x, y);
+        else context.lineTo(x, y);
+      }
+      context.closePath();
+    }
+
+    if (item.shape !== "line" && item.style === "fill") context.fill();
+    else context.stroke();
+    context.restore();
+  }
+
   function showNotice(message) {
     drawingNotice.textContent = message;
     drawingNotice.hidden = false;
@@ -129,6 +203,11 @@
   }
 
   function drawItem(item) {
+    if (item.type === "shape") {
+      drawShape(item);
+      return;
+    }
+
     if (item.type === "sticker") {
       context.save();
       const pixelRatio = canvas.width / canvas.clientWidth;
@@ -184,6 +263,7 @@
     context.fillRect(0, 0, canvas.width, canvas.height);
     for (const item of items) drawItem(item);
     if (currentStroke) drawItem(currentStroke);
+    if (currentShape) drawItem(currentShape);
   }
 
   function resizeCanvas() {
@@ -247,6 +327,21 @@
 
     const point = getPoint(event);
 
+    if (activeTool === "shape") {
+      drawing = true;
+      currentShape = {
+        type: "shape",
+        shape: activeShape,
+        style: shapeStyle,
+        color,
+        size: brushSize,
+        start: point,
+        end: point,
+      };
+      redraw();
+      return;
+    }
+
     if (activeSticker) {
       addSticker(point);
       return;
@@ -276,12 +371,26 @@
       updateZoom();
       return;
     }
+    if (drawing && currentShape) {
+      currentShape.end = getPoint(event);
+      redraw();
+      return;
+    }
     if (!drawing || !currentStroke) return;
     currentStroke.points.push(getPoint(event));
     redraw();
   });
 
   function finishStroke() {
+    if (drawing && currentShape) {
+      items.push(currentShape);
+      currentShape = null;
+      drawing = false;
+      redoItems = [];
+      redraw();
+      updateHistoryButtons();
+      return;
+    }
     if (!drawing || !currentStroke) return;
     items.push(currentStroke);
     currentStroke = null;
@@ -319,6 +428,7 @@
     button.addEventListener("click", () => {
       activeTool = button.dataset.tool;
       activeSticker = "";
+      activeShape = "";
       canvas.classList.remove("is-sticker-mode");
       canvas.classList.remove("is-hand-mode", "is-panning");
       canvas.classList.toggle("is-fill-mode", activeTool === "fill");
@@ -332,6 +442,51 @@
         const selected = stickerButton.dataset.sticker === "none";
         stickerButton.classList.toggle("is-selected", selected);
         stickerButton.setAttribute("aria-pressed", String(selected));
+      });
+      shapeButtons.forEach((shapeButton) => {
+        shapeButton.classList.remove("is-selected");
+        shapeButton.setAttribute("aria-pressed", "false");
+      });
+    });
+  });
+
+  shapeButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeShape = button.dataset.shape;
+      activeTool = "shape";
+      activeSticker = "";
+      if (activeShape === "line") shapeStyle = "stroke";
+      canvas.classList.remove("is-sticker-mode", "is-fill-mode", "is-hand-mode", "is-panning");
+      shapeButtons.forEach((shapeButton) => {
+        const selected = shapeButton === button;
+        shapeButton.classList.toggle("is-selected", selected);
+        shapeButton.setAttribute("aria-pressed", String(selected));
+      });
+      shapeStyleButtons.forEach((styleButton) => {
+        const selected = styleButton.dataset.shapeStyle === shapeStyle;
+        styleButton.classList.toggle("is-selected", selected);
+        styleButton.setAttribute("aria-pressed", String(selected));
+      });
+      document.querySelectorAll(".tool-button").forEach((toolButton) => {
+        toolButton.classList.remove("is-active");
+        toolButton.setAttribute("aria-pressed", "false");
+      });
+      document.querySelectorAll(".sticker-button").forEach((stickerButton) => {
+        const selected = stickerButton.dataset.sticker === "none";
+        stickerButton.classList.toggle("is-selected", selected);
+        stickerButton.setAttribute("aria-pressed", String(selected));
+      });
+    });
+  });
+
+  shapeStyleButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      if (activeShape === "line" && button.dataset.shapeStyle === "fill") return;
+      shapeStyle = button.dataset.shapeStyle;
+      shapeStyleButtons.forEach((styleButton) => {
+        const selected = styleButton === button;
+        styleButton.classList.toggle("is-selected", selected);
+        styleButton.setAttribute("aria-pressed", String(selected));
       });
     });
   });
@@ -373,11 +528,16 @@
       });
       if (activeSticker) {
         activeTool = "pencil";
+        activeShape = "";
         canvas.classList.remove("is-fill-mode", "is-hand-mode", "is-panning");
         document.querySelectorAll(".tool-button").forEach((toolButton) => {
           const selected = toolButton.dataset.tool === activeTool;
           toolButton.classList.toggle("is-active", selected);
           toolButton.setAttribute("aria-pressed", String(selected));
+        });
+        shapeButtons.forEach((shapeButton) => {
+          shapeButton.classList.remove("is-selected");
+          shapeButton.setAttribute("aria-pressed", "false");
         });
       }
       canvas.classList.toggle("is-sticker-mode", Boolean(activeSticker));
