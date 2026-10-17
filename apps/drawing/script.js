@@ -1,5 +1,6 @@
 (() => {
   const canvas = document.getElementById("drawing-canvas");
+  const paperWrap = document.querySelector(".paper-wrap");
   const context = canvas.getContext("2d");
   const brushSizeInput = document.getElementById("brush-size");
   const brushSizeValue = document.getElementById("brush-size-value");
@@ -19,6 +20,10 @@
   let activeTool = "pencil";
   let activeSticker = "";
   let drawing = false;
+  let panning = false;
+  let panX = 0;
+  let panY = 0;
+  let panStart = null;
   let currentStroke = null;
   let items = [];
   let redoItems = [];
@@ -30,10 +35,18 @@
   }
 
   function updateZoom() {
-    canvas.style.transform = `scale(${zoom})`;
+    clampPan();
+    canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
     zoomValue.textContent = `${Math.round(zoom * 100)}%`;
     zoomOutButton.disabled = zoom <= minZoom;
     zoomInButton.disabled = zoom >= maxZoom;
+  }
+
+  function clampPan() {
+    const maxX = Math.max(0, (canvas.clientWidth * zoom - paperWrap.clientWidth) / 2);
+    const maxY = Math.max(0, (canvas.clientHeight * zoom - paperWrap.clientHeight) / 2);
+    panX = Math.max(-maxX, Math.min(maxX, panX));
+    panY = Math.max(-maxY, Math.min(maxY, panY));
   }
 
   function fillArea(item) {
@@ -184,6 +197,7 @@
     canvas.width = pixelWidth;
     canvas.height = pixelHeight;
     redraw();
+    updateZoom();
   }
 
   function getPoint(event) {
@@ -223,6 +237,14 @@
     if (event.button !== undefined && event.button !== 0) return;
     event.preventDefault();
     canvas.setPointerCapture(event.pointerId);
+
+    if (activeTool === "hand") {
+      panning = true;
+      panStart = { x: event.clientX - panX, y: event.clientY - panY };
+      canvas.classList.add("is-panning");
+      return;
+    }
+
     const point = getPoint(event);
 
     if (activeSticker) {
@@ -247,6 +269,13 @@
   });
 
   canvas.addEventListener("pointermove", (event) => {
+    if (panning && panStart) {
+      panX = event.clientX - panStart.x;
+      panY = event.clientY - panStart.y;
+      clampPan();
+      updateZoom();
+      return;
+    }
     if (!drawing || !currentStroke) return;
     currentStroke.points.push(getPoint(event));
     redraw();
@@ -266,6 +295,16 @@
   canvas.addEventListener("pointercancel", finishStroke);
   canvas.addEventListener("lostpointercapture", finishStroke);
 
+  function finishPan() {
+    panning = false;
+    panStart = null;
+    canvas.classList.remove("is-panning");
+  }
+
+  canvas.addEventListener("pointerup", finishPan);
+  canvas.addEventListener("pointercancel", finishPan);
+  canvas.addEventListener("lostpointercapture", finishPan);
+
   zoomOutButton.addEventListener("click", () => {
     zoom = Math.max(minZoom, zoom - zoomStep);
     updateZoom();
@@ -281,7 +320,9 @@
       activeTool = button.dataset.tool;
       activeSticker = "";
       canvas.classList.remove("is-sticker-mode");
+      canvas.classList.remove("is-hand-mode", "is-panning");
       canvas.classList.toggle("is-fill-mode", activeTool === "fill");
+      canvas.classList.toggle("is-hand-mode", activeTool === "hand");
       document.querySelectorAll(".tool-button").forEach((toolButton) => {
         const selected = toolButton === button;
         toolButton.classList.toggle("is-active", selected);
@@ -332,7 +373,7 @@
       });
       if (activeSticker) {
         activeTool = "pencil";
-        canvas.classList.remove("is-fill-mode");
+        canvas.classList.remove("is-fill-mode", "is-hand-mode", "is-panning");
         document.querySelectorAll(".tool-button").forEach((toolButton) => {
           const selected = toolButton.dataset.tool === activeTool;
           toolButton.classList.toggle("is-active", selected);
