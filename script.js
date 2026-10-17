@@ -58,6 +58,7 @@ const items = {
     { label: "Calculator", url: "apps/calculator/index.html" },
     { label: "Stop Watch", url: "apps/stopwatch/index.html" },
     { label: "Calendar", url: "apps/calendar/index.html" },
+    { label: "Drawing Studio", url: "apps/drawing/index.html" },
   ],
   other: [
     { label: "BB8", url: "other/bb8/index.html" },
