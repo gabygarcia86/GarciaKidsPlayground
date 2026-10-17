@@ -1,0 +1,645 @@
+(() => {
+  const canvas = document.getElementById("game-canvas");
+  const context = canvas.getContext("2d");
+  const stage = document.getElementById("game");
+  const startScreen = document.getElementById("start-screen");
+  const pauseScreen = document.getElementById("pause-screen");
+  const gameoverScreen = document.getElementById("gameover-screen");
+  const gameHud = document.getElementById("game-hud");
+  const touchControl = document.getElementById("touch-control");
+  const swingButton = document.getElementById("swing-button");
+  const distanceValue = document.getElementById("distance-value");
+  const starValue = document.getElementById("star-value");
+  const toast = document.getElementById("game-toast");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  const gravity = 0.43;
+  const heroRadius = 15;
+  let width = 0;
+  let height = 0;
+  let pixelRatio = 1;
+  let lastFrame = 0;
+  let state = "ready";
+  let worldSeed = 1;
+  let random = Math.random;
+  let buildings = [];
+  let anchors = [];
+  let stars = [];
+  let player;
+  let cameraX = 0;
+  let distance = 0;
+  let collectedStars = 0;
+  let attachedAnchor = null;
+  let ropeLength = 0;
+  let swingHeld = false;
+  let toastTimer;
+  let soundEnabled = false;
+  let audioContext = null;
+  let lastHudDistance = -1;
+  let lastHudStars = -1;
+
+  function seededRandom() {
+    worldSeed = (worldSeed * 1664525 + 1013904223) >>> 0;
+    return worldSeed / 4294967296;
+  }
+
+  function addBuilding(x, buildingWidth, top) {
+    const building = { x, width: buildingWidth, top };
+    buildings.push(building);
+    anchors.push({
+      x: x + buildingWidth * (0.63 + random() * 0.17),
+      y: Math.max(38, top - 95 - random() * 75),
+    });
+    for (let index = 0; index < 5; index += 1) {
+      stars.push({
+        x: x + buildingWidth * (0.12 + index * 0.18 + random() * 0.06),
+        y: Math.max(42, top - 20 - random() * 38),
+        collected: false,
+        phase: random() * Math.PI * 2,
+      });
+    }
+  }
+
+  function extendWorld() {
+    if (buildings.length === 0) {
+      addBuilding(-150, 480, height * 0.66);
+    }
+    while (buildings[buildings.length - 1].x +
+      buildings[buildings.length - 1].width < player.x + width * 3) {
+      const previous = buildings[buildings.length - 1];
+      const gap = 100 + random() * 85;
+      const buildingWidth = 205 + random() * 150;
+      const top = height * (0.52 + random() * 0.15);
+      addBuilding(previous.x + previous.width + gap, buildingWidth, top);
+    }
+  }
+
+  function resetRun() {
+    worldSeed = 24681357 + Math.floor(Math.random() * 1000000);
+    random = seededRandom;
+    buildings = [];
+    anchors = [];
+    stars = [];
+    attachedAnchor = null;
+    ropeLength = 0;
+    swingHeld = false;
+    cameraX = 0;
+    distance = 0;
+    collectedStars = 0;
+    player = {
+      x: 48,
+      y: height * 0.66 - heroRadius,
+      vx: 4.8,
+      vy: 0,
+      grounded: true,
+      rotation: 0,
+    };
+    extendWorld();
+    state = "playing";
+    startScreen.hidden = true;
+    pauseScreen.hidden = true;
+    gameoverScreen.hidden = true;
+    gameHud.hidden = false;
+    touchControl.hidden = !isTouchDevice();
+    swingButton.classList.remove("is-held");
+    lastHudDistance = -1;
+    lastHudStars = -1;
+    updateHud();
+    playTone(560, 0.1);
+  }
+
+  function isTouchDevice() {
+    return window.matchMedia("(pointer: coarse)").matches || width <= 700;
+  }
+
+  function showToast(message) {
+    toast.textContent = message;
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.hidden = true;
+    }, 1500);
+  }
+
+  function updateHud() {
+    const shownDistance = Math.floor(distance / 10);
+    if (shownDistance !== lastHudDistance) {
+      distanceValue.textContent = shownDistance;
+      lastHudDistance = shownDistance;
+    }
+    if (collectedStars !== lastHudStars) {
+      starValue.textContent = collectedStars;
+      lastHudStars = collectedStars;
+    }
+  }
+
+  function playTone(frequency, duration = 0.12) {
+    if (!soundEnabled) return;
+    if (!audioContext) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) {
+        showToast("Sound is not available in this browser.");
+        soundEnabled = false;
+        return;
+      }
+      audioContext = new AudioContextClass();
+    }
+    if (audioContext.state === "suspended") audioContext.resume();
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.12, audioContext.currentTime + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start();
+    oscillator.stop(audioContext.currentTime + duration);
+  }
+
+  function resizeCanvas() {
+    const rect = stage.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const oldHeight = height;
+    width = rect.width;
+    height = rect.height;
+    pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * pixelRatio);
+    canvas.height = Math.round(height * pixelRatio);
+    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    if (oldHeight && player && state !== "ready") {
+      const scale = height / oldHeight;
+      player.y *= scale;
+      player.vy *= scale;
+      buildings.forEach((building) => {
+        building.top *= scale;
+      });
+      anchors.forEach((anchor) => {
+        anchor.y *= scale;
+      });
+      stars.forEach((star) => {
+        star.y *= scale;
+      });
+      if (attachedAnchor) ropeLength *= scale;
+    } else if (state === "ready") {
+      resetRun();
+      state = "ready";
+      startScreen.hidden = false;
+      gameHud.hidden = true;
+      touchControl.hidden = true;
+    }
+  }
+
+  function attachWeb() {
+    if (state !== "playing" || attachedAnchor) return;
+    const nextAnchor = anchors
+      .filter((anchor) => anchor.x > player.x + 18)
+      .map((anchor) => ({
+        anchor,
+        distance: Math.hypot(anchor.x - player.x, anchor.y - player.y),
+      }))
+      .filter((candidate) => candidate.distance < Math.min(550, width * 0.9))
+      .sort((a, b) => a.distance - b.distance)[0];
+
+    if (!nextAnchor) {
+      showToast("Keep moving to find a place to swing!");
+      return;
+    }
+
+    attachedAnchor = nextAnchor.anchor;
+    ropeLength = Math.max(82, nextAnchor.distance);
+    if (player.grounded) player.vy = -3.4;
+    player.grounded = false;
+    player.vx += 0.45;
+    playTone(410, 0.09);
+  }
+
+  function releaseWeb() {
+    if (!swingHeld && !attachedAnchor) return;
+    swingHeld = false;
+    attachedAnchor = null;
+    swingButton.classList.remove("is-held");
+  }
+
+  function beginSwing() {
+    if (state !== "playing") return;
+    swingHeld = true;
+    swingButton.classList.add("is-held");
+    if (!attachedAnchor) attachWeb();
+  }
+
+  function endSwing() {
+    if (attachedAnchor) playTone(300, 0.07);
+    releaseWeb();
+  }
+
+  function setPaused(paused) {
+    if (paused && state === "playing") {
+      state = "paused";
+      swingHeld = false;
+      swingButton.classList.remove("is-held");
+      attachedAnchor = null;
+      pauseScreen.hidden = false;
+      touchControl.hidden = true;
+    } else if (!paused && state === "paused") {
+      state = "playing";
+      pauseScreen.hidden = true;
+      touchControl.hidden = !isTouchDevice();
+    }
+  }
+
+  function finishRun() {
+    if (state !== "playing") return;
+    state = "over";
+    swingHeld = false;
+    attachedAnchor = null;
+    touchControl.hidden = true;
+    document.getElementById("final-distance").textContent =
+      Math.floor(distance / 10);
+    document.getElementById("final-stars").textContent = collectedStars;
+    gameoverScreen.hidden = false;
+    playTone(240, 0.22);
+  }
+
+  function update(delta) {
+    if (state !== "playing" || !player) return;
+    const step = Math.min(delta / 16.667, 2.3);
+    extendWorld();
+
+    if (attachedAnchor && swingHeld) {
+      player.vy += gravity * step;
+      player.vx *= Math.pow(0.999, step);
+      player.vy *= Math.pow(0.999, step);
+      player.x += player.vx * step;
+      player.y += player.vy * step;
+
+      const dx = player.x - attachedAnchor.x;
+      const dy = player.y - attachedAnchor.y;
+      const currentLength = Math.hypot(dx, dy) || 1;
+      if (currentLength > ropeLength) {
+        const nx = dx / currentLength;
+        const ny = dy / currentLength;
+        player.x = attachedAnchor.x + nx * ropeLength;
+        player.y = attachedAnchor.y + ny * ropeLength;
+        const radialSpeed = player.vx * nx + player.vy * ny;
+        if (radialSpeed > 0) {
+          player.vx -= radialSpeed * nx;
+          player.vy -= radialSpeed * ny;
+        }
+      }
+    } else {
+      player.vy += gravity * step;
+      player.vx += (5.2 - player.vx) * 0.018 * step;
+      player.vx = Math.max(2.4, Math.min(player.vx, 9.2));
+      player.x += player.vx * step;
+      player.y += player.vy * step;
+    }
+
+    if (attachedAnchor) {
+      player.rotation = Math.atan2(player.vy, player.vx) * 0.55;
+    } else {
+      player.rotation += (Math.max(-0.34, Math.min(0.34, player.vx * 0.015)) -
+        player.rotation) * 0.05 * step;
+    }
+
+    if (player.vy >= 0) {
+      const roof = buildings.find((building) =>
+        player.x + heroRadius > building.x &&
+        player.x - heroRadius < building.x + building.width &&
+        player.y - heroRadius < building.top &&
+        player.y + heroRadius >= building.top,
+      );
+      if (roof) {
+        player.y = roof.top - heroRadius;
+        player.vy = 0;
+        player.grounded = true;
+        if (attachedAnchor) {
+          attachedAnchor = null;
+          swingHeld = false;
+          swingButton.classList.remove("is-held");
+        }
+      } else {
+        player.grounded = false;
+      }
+    }
+
+    for (const star of stars) {
+      if (star.collected) continue;
+      if (Math.hypot(player.x - star.x, player.y - star.y) < 40) {
+        star.collected = true;
+        collectedStars += 1;
+        playTone(790 + (collectedStars % 4) * 100, 0.16);
+        updateHud();
+      }
+    }
+
+    distance = Math.max(distance, player.x - 48);
+    cameraX = Math.max(0, player.x - width * 0.29);
+    const worldStart = player.x - width * 2;
+    buildings = buildings.filter((building) =>
+      building.x + building.width > worldStart,
+    );
+    anchors = anchors.filter((anchor) => anchor.x > worldStart);
+    stars = stars.filter((star) => star.x > worldStart);
+    updateHud();
+
+    if (player.y > height + 115) finishRun();
+  }
+
+  function roundedRect(x, y, rectWidth, rectHeight, radius) {
+    context.beginPath();
+    context.roundRect(x, y, rectWidth, rectHeight, radius);
+  }
+
+  function drawCloud(x, y, scale) {
+    context.beginPath();
+    context.ellipse(x, y + 9 * scale, 33 * scale, 12 * scale, 0, 0, Math.PI * 2);
+    context.ellipse(x - 18 * scale, y + 3 * scale, 15 * scale, 14 * scale, 0, 0, Math.PI * 2);
+    context.ellipse(x + 2 * scale, y - 4 * scale, 19 * scale, 19 * scale, 0, 0, Math.PI * 2);
+    context.ellipse(x + 22 * scale, y + 3 * scale, 17 * scale, 13 * scale, 0, 0, Math.PI * 2);
+    context.fill();
+  }
+
+  function drawBackground(time) {
+    const sky = context.createLinearGradient(0, 0, 0, height);
+    sky.addColorStop(0, "#72c5f2");
+    sky.addColorStop(0.6, "#a7e2ee");
+    sky.addColorStop(1, "#f8d9c4");
+    context.fillStyle = sky;
+    context.fillRect(0, 0, width, height);
+
+    const sunX = width * 0.76 - (cameraX * 0.035) % width;
+    context.fillStyle = "rgba(255, 236, 151, .72)";
+    context.beginPath();
+    context.arc((sunX + width) % width, height * 0.23, 43, 0, Math.PI * 2);
+    context.fill();
+
+    context.fillStyle = "rgba(255, 255, 255, .66)";
+    const drift = (time * 0.009) % (width + 130);
+    drawCloud(width - drift + 35, height * 0.22, 0.85);
+    drawCloud((width * 0.42 + drift * 0.48) % (width + 90) - 35,
+      height * 0.34, 0.62);
+    drawCloud((width * 0.78 + drift * 0.32) % (width + 120) - 40,
+      height * 0.14, 0.54);
+
+    drawDistantCity();
+  }
+
+  function drawDistantCity() {
+    const parallax = cameraX * 0.2;
+    const blockWidth = 76;
+    const start = -((parallax % blockWidth) + blockWidth);
+    for (let x = start; x < width + blockWidth; x += blockWidth) {
+      const index = Math.floor((x + parallax) / blockWidth);
+      const buildingHeight = 64 + Math.abs((index * 47) % 125);
+      const top = height * 0.69 - buildingHeight;
+      context.fillStyle = index % 2 ? "rgba(91, 123, 177, .25)" : "rgba(85, 117, 170, .2)";
+      context.fillRect(x, top, blockWidth - 5, height - top);
+      context.fillStyle = "rgba(255, 239, 189, .42)";
+      for (let wx = x + 12; wx < x + blockWidth - 12; wx += 20) {
+        for (let wy = top + 16; wy < height - 8; wy += 25) {
+          context.fillRect(wx, wy, 7, 9);
+        }
+      }
+    }
+  }
+
+  function drawBuildings(time) {
+    for (const building of buildings) {
+      const x = building.x - cameraX;
+      if (x > width + 20 || x + building.width < -30) continue;
+      const buildingHeight = height - building.top + 200;
+      const palette = ["#263467", "#303872", "#29335f", "#354078"];
+      const shade = Math.abs(Math.floor(building.x / 17)) % palette.length;
+      const gradient = context.createLinearGradient(x, building.top, x, height);
+      gradient.addColorStop(0, palette[shade]);
+      gradient.addColorStop(1, "#182448");
+      context.fillStyle = gradient;
+      context.fillRect(x, building.top, building.width, buildingHeight);
+
+      context.fillStyle = "rgba(255, 255, 255, .12)";
+      context.fillRect(x, building.top, building.width, 5);
+      context.fillStyle = "rgba(133, 217, 255, .58)";
+      for (let wx = x + 15; wx < x + building.width - 12; wx += 29) {
+        for (let wy = building.top + 24; wy < height; wy += 34) {
+          const lit = Math.sin(wx * 0.17 + wy * 0.08) > -0.25;
+          if (lit) {
+            context.fillRect(wx, wy, 11, 14);
+            context.fillStyle = "rgba(210, 242, 255, .2)";
+            context.fillRect(wx + 2, wy + 2, 2, 10);
+            context.fillStyle = "rgba(133, 217, 255, .58)";
+          }
+        }
+      }
+      context.fillStyle = "rgba(255, 220, 117, .5)";
+      context.fillRect(x + 11, building.top + 7, Math.min(building.width - 22, 26), 3);
+    }
+
+    for (const star of stars) {
+      if (star.collected) continue;
+      const x = star.x - cameraX;
+      if (x < -40 || x > width + 40) continue;
+      const bob = reducedMotion.matches ? 0 : Math.sin(time * 0.004 + star.phase) * 4;
+      const y = star.y + bob;
+      context.fillStyle = "rgba(255, 220, 90, .2)";
+      context.beginPath();
+      context.arc(x, y, 19, 0, Math.PI * 2);
+      context.fill();
+      drawStar(x, y, 10, "#ffda5b");
+    }
+  }
+
+  function drawStar(x, y, radius, fill) {
+    context.beginPath();
+    for (let point = 0; point < 10; point += 1) {
+      const angle = -Math.PI / 2 + point * Math.PI / 5;
+      const pointRadius = point % 2 === 0 ? radius : radius * 0.45;
+      const px = x + Math.cos(angle) * pointRadius;
+      const py = y + Math.sin(angle) * pointRadius;
+      if (point === 0) context.moveTo(px, py);
+      else context.lineTo(px, py);
+    }
+    context.closePath();
+    context.fillStyle = fill;
+    context.shadowColor = "rgba(255, 205, 69, .8)";
+    context.shadowBlur = 10;
+    context.fill();
+    context.shadowBlur = 0;
+  }
+
+  function drawAnchor(anchor, time) {
+    const x = anchor.x - cameraX;
+    if (x < -25 || x > width + 25) return;
+    const pulse = reducedMotion.matches ? 1 : 1 + Math.sin(time * 0.006 + anchor.x) * 0.12;
+    context.fillStyle = "rgba(255, 255, 255, .24)";
+    context.beginPath();
+    context.arc(x, anchor.y, 12 * pulse, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = "#fff";
+    context.beginPath();
+    context.arc(x, anchor.y, 4.5, 0, Math.PI * 2);
+    context.fill();
+  }
+
+  function drawHero() {
+    if (!player) return;
+    const x = player.x - cameraX;
+    const y = player.y;
+    context.save();
+    context.translate(x, y);
+    context.rotate(player.rotation);
+
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.strokeStyle = "#273664";
+    context.lineWidth = 6;
+    context.beginPath();
+    context.moveTo(-4, 8);
+    context.lineTo(-10, 18);
+    context.lineTo(-17, 21);
+    context.moveTo(4, 8);
+    context.lineTo(10, 18);
+    context.lineTo(17, 20);
+    context.moveTo(-7, -1);
+    context.lineTo(-15, 5);
+    context.moveTo(7, -1);
+    context.lineTo(15, -8);
+    context.stroke();
+
+    context.fillStyle = "#f27468";
+    context.beginPath();
+    context.moveTo(-5, -2);
+    context.lineTo(-17, -13);
+    context.lineTo(-10, 1);
+    context.lineTo(-20, 6);
+    context.lineTo(-6, 8);
+    context.closePath();
+    context.fill();
+
+    context.fillStyle = "#38c8c7";
+    roundedRect(-9, -8, 18, 21, 7);
+    context.fill();
+    context.fillStyle = "#f8a65b";
+    context.beginPath();
+    context.arc(0, -15, 9.5, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = "#283766";
+    roundedRect(-7, -18, 14, 6, 3);
+    context.fill();
+    context.fillStyle = "#fff";
+    context.beginPath();
+    context.ellipse(-3.5, -15, 2.5, 1.6, -0.25, 0, Math.PI * 2);
+    context.ellipse(3.5, -15, 2.5, 1.6, 0.25, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = "#fff0a1";
+    context.beginPath();
+    context.arc(0, 0, 2.2, 0, Math.PI * 2);
+    context.fill();
+    context.restore();
+  }
+
+  function drawWeb() {
+    if (!attachedAnchor || !player) return;
+    const anchorX = attachedAnchor.x - cameraX;
+    const playerX = player.x - cameraX;
+    context.save();
+    context.strokeStyle = "rgba(255, 255, 255, .94)";
+    context.lineWidth = 2.5;
+    context.shadowColor = "rgba(91, 106, 223, .65)";
+    context.shadowBlur = 6;
+    context.beginPath();
+    context.moveTo(anchorX, attachedAnchor.y);
+    context.lineTo(playerX, player.y - 3);
+    context.stroke();
+    context.restore();
+  }
+
+  function draw(time) {
+    if (!width || !height) return;
+    drawBackground(time);
+    drawBuildings(time);
+    for (const anchor of anchors) drawAnchor(anchor, time);
+    drawWeb();
+    drawHero();
+  }
+
+  function frame(time) {
+    const delta = lastFrame ? time - lastFrame : 16.667;
+    lastFrame = time;
+    update(delta);
+    draw(time);
+    window.requestAnimationFrame(frame);
+  }
+
+  canvas.addEventListener("pointerdown", (event) => {
+    if (event.button !== undefined && event.button !== 0) return;
+    if (state !== "playing") return;
+    event.preventDefault();
+    canvas.setPointerCapture(event.pointerId);
+    beginSwing();
+  });
+  canvas.addEventListener("pointerup", endSwing);
+  canvas.addEventListener("pointercancel", endSwing);
+  canvas.addEventListener("lostpointercapture", endSwing);
+
+  swingButton.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    swingButton.setPointerCapture(event.pointerId);
+    beginSwing();
+  });
+  swingButton.addEventListener("pointerup", (event) => {
+    event.stopPropagation();
+    endSwing();
+  });
+  swingButton.addEventListener("pointercancel", endSwing);
+  swingButton.addEventListener("lostpointercapture", endSwing);
+  swingButton.addEventListener("contextmenu", (event) => event.preventDefault());
+
+  window.addEventListener("keydown", (event) => {
+    if (event.code === "Space" && state === "playing") {
+      event.preventDefault();
+      if (!event.repeat) beginSwing();
+    } else if (event.code === "Escape" && state === "playing") {
+      setPaused(true);
+    }
+  });
+  window.addEventListener("keyup", (event) => {
+    if (event.code === "Space") endSwing();
+  });
+
+  document.getElementById("start-button").addEventListener("click", resetRun);
+  document.getElementById("play-again-button").addEventListener("click", resetRun);
+  document.getElementById("pause-button").addEventListener("click", () => setPaused(true));
+  document.getElementById("resume-button").addEventListener("click", () => setPaused(false));
+
+  document.getElementById("sound-button").addEventListener("click", (event) => {
+    soundEnabled = !soundEnabled;
+    const button = event.currentTarget;
+    button.setAttribute("aria-pressed", String(soundEnabled));
+    button.setAttribute("aria-label", soundEnabled ? "Sound on" : "Sound off");
+    button.title = soundEnabled ? "Sound on" : "Sound off";
+    if (soundEnabled) playTone(660, 0.1);
+  });
+
+  document.getElementById("fullscreen-button").addEventListener("click", (event) => {
+    const button = event.currentTarget;
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => showToast("Could not exit full screen."));
+    } else if (stage.requestFullscreen) {
+      stage.requestFullscreen().catch(() => showToast("Full screen is not available."));
+    } else {
+      showToast("Full screen is not available in this browser.");
+    }
+    document.addEventListener("fullscreenchange", () => {
+      const isFullscreen = document.fullscreenElement === stage;
+      button.setAttribute("aria-label", isFullscreen ? "Exit full screen" : "Enter full screen");
+      button.title = isFullscreen ? "Exit full screen" : "Enter full screen";
+    }, { once: true });
+  });
+
+  new ResizeObserver(resizeCanvas).observe(stage);
+  resizeCanvas();
+  window.requestAnimationFrame(frame);
+})();

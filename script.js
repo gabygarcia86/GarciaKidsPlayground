@@ -18,6 +18,10 @@ const items = {
       url: "games/tic_tac_toe/index.html",
     },
     {
+      label: "Skyline Slinger",
+      url: "games/skyline_slinger/index.html",
+    },
+    {
       label: "Amy's World",
       url: isMobileDevice
         ? "games/amys_world/mobile/index.html"
