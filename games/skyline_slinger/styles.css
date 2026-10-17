@@ -226,15 +226,17 @@ body.webswing-page {
 
 .pause-button {
   display: grid;
-  width: 42px;
+  min-width: 64px;
   height: 42px;
   place-items: center;
   margin-left: 2px;
+  padding-inline: 8px;
   border: 1px solid rgba(255, 255, 255, .55);
   border-radius: 13px;
   background: rgba(23, 39, 84, .82);
   color: #fff;
-  font-size: 1rem;
+  font-size: .7rem;
+  font-weight: 800;
   cursor: pointer;
 }
 
@@ -626,7 +628,7 @@ body.webswing-page {
   }
 
   .pause-button {
-    width: 38px;
+    min-width: 58px;
     height: 38px;
     border-radius: 11px;
   }

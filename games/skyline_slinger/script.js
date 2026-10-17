@@ -56,8 +56,8 @@
     addPortraitSwingPoints(building);
     for (let index = 0; index < 5; index += 1) {
       stars.push({
-        x: x + buildingWidth * (0.12 + index * 0.18 + random() * 0.06),
-        y: Math.max(30, top - 12),
+        x: x + buildingWidth * (0.08 + random() * 0.84),
+        y: height * (0.12 + random() * 0.76),
         collected: false,
         phase: random() * Math.PI * 2,
       });
