@@ -821,8 +821,8 @@
 
     context.lineCap = "round";
     context.lineJoin = "round";
-    context.strokeStyle = "#273664";
-    context.lineWidth = 6;
+    context.strokeStyle = "#17356d";
+    context.lineWidth = 8;
     context.beginPath();
     context.moveTo(-4, 8);
     context.lineTo(-10, 18);
@@ -836,34 +836,73 @@
     context.lineTo(15, -8);
     context.stroke();
 
-    context.fillStyle = "#f27468";
+    context.strokeStyle = "#1767c3";
+    context.lineWidth = 4.5;
     context.beginPath();
-    context.moveTo(-5, -2);
-    context.lineTo(-17, -13);
-    context.lineTo(-10, 1);
-    context.lineTo(-20, 6);
-    context.lineTo(-6, 8);
+    context.moveTo(-4, 8);
+    context.lineTo(-10, 18);
+    context.moveTo(4, 8);
+    context.lineTo(10, 18);
+    context.moveTo(-7, -1);
+    context.lineTo(-15, 5);
+    context.moveTo(7, -1);
+    context.lineTo(15, -8);
+    context.stroke();
+
+    context.fillStyle = "#1767c3";
+    roundedRect(-10, -8, 20, 22, 7);
+    context.fill();
+    context.fillStyle = "#d93446";
+    context.beginPath();
+    context.moveTo(-8, -5);
+    context.lineTo(0, 1);
+    context.lineTo(8, -5);
+    context.lineTo(6, 6);
+    context.lineTo(0, 11);
+    context.lineTo(-6, 6);
     context.closePath();
     context.fill();
 
-    context.fillStyle = "#38c8c7";
-    roundedRect(-9, -8, 18, 21, 7);
-    context.fill();
-    context.fillStyle = "#f8a65b";
+    context.strokeStyle = "#101522";
+    context.lineWidth = 1.5;
     context.beginPath();
-    context.arc(0, -15, 9.5, 0, Math.PI * 2);
-    context.fill();
-    context.fillStyle = "#283766";
-    roundedRect(-7, -18, 14, 6, 3);
-    context.fill();
-    context.fillStyle = "#fff";
+    for (const side of [-1, 1]) {
+      for (const row of [-1, 0, 1, 2]) {
+        const startY = row * 1.8;
+        const kneeY = startY + (row < 1 ? -2.5 : 2.5);
+        context.moveTo(side * 1.5, startY);
+        context.lineTo(side * 3.5, kneeY);
+        context.lineTo(side * 5, kneeY + (row < 1 ? -1 : 1));
+      }
+    }
+    context.stroke();
+    context.fillStyle = "#101522";
     context.beginPath();
-    context.ellipse(-3.5, -15, 2.5, 1.6, -0.25, 0, Math.PI * 2);
-    context.ellipse(3.5, -15, 2.5, 1.6, 0.25, 0, Math.PI * 2);
+    context.ellipse(0, 1, 2, 4.5, 0, 0, Math.PI * 2);
     context.fill();
-    context.fillStyle = "#fff0a1";
     context.beginPath();
-    context.arc(0, 0, 2.2, 0, Math.PI * 2);
+    context.arc(0, -3.5, 1.5, 0, Math.PI * 2);
+    context.fill();
+
+    context.fillStyle = "#d93446";
+    context.beginPath();
+    context.ellipse(0, -15, 10, 11, 0, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = "#f4fbff";
+    context.beginPath();
+    context.ellipse(-4, -15, 3.1, 2.1, -0.32, 0, Math.PI * 2);
+    context.ellipse(4, -15, 3.1, 2.1, 0.32, 0, Math.PI * 2);
+    context.fill();
+    context.strokeStyle = "#a8d8ff";
+    context.lineWidth = 1;
+    context.beginPath();
+    context.ellipse(-4, -15, 3.1, 2.1, -0.32, 0, Math.PI * 2);
+    context.ellipse(4, -15, 3.1, 2.1, 0.32, 0, Math.PI * 2);
+    context.stroke();
+
+    context.fillStyle = "#d93446";
+    context.beginPath();
+    context.arc(0, -24, 2, 0, Math.PI * 2);
     context.fill();
     context.restore();
   }
