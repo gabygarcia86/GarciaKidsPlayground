@@ -3,6 +3,8 @@ const ctx = canvas.getContext("2d");
 const welcomeDialog = document.querySelector(".welcome-dialog");
 const redPill = document.querySelector("#red-pill");
 const bluePill = document.querySelector("#blue-pill");
+const secretSpinButton = document.querySelector(".secret-spin-button");
+const spinButtonSize = 100;
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -26,9 +28,33 @@ const matrixSound = document.querySelector("#matrix-sound");
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 
 welcomeDialog.showModal();
+secretSpinButton.style.left = `${Math.random() * Math.max(0, window.innerWidth - spinButtonSize)}px`;
+secretSpinButton.style.top = `${Math.random() * Math.max(0, window.innerHeight - spinButtonSize)}px`;
 redPill.addEventListener("click", () => welcomeDialog.close());
 bluePill.addEventListener("click", () => {
   window.location.href = "../../index.html";
+});
+secretSpinButton.addEventListener("click", () => {
+  document.body.classList.add("screen-spinning");
+  secretSpinButton.disabled = true;
+});
+document.body.addEventListener("animationend", (event) => {
+  if (event.animationName !== "screen-spin") return;
+
+  document.body.classList.remove("screen-spinning");
+  secretSpinButton.disabled = false;
+});
+window.addEventListener("keydown", (event) => {
+  if (
+    event.code !== "Space" ||
+    event.repeat ||
+    welcomeDialog.open
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+  secretSpinButton.click();
 });
 
 matrixSound.loop = true;

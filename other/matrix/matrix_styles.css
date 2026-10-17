@@ -1,69 +1,112 @@
-body{
-  margin:0;
-  background:#000;
-  overflow:hidden;
+body {
+  margin: 0;
+  background: #000;
+  overflow: hidden;
 }
-canvas{
-  display:block;
+
+body.screen-spinning {
+  animation: screen-spin 5s ease-in-out;
+  transform-origin: center center;
 }
-.welcome-dialog{
-  width:min(26rem, calc(100% - 4rem));
-  padding:2.5rem;
-  border:1px solid #37ff67;
-  border-radius:1rem;
-  background:rgba(0, 12, 5, 0.96);
-  color:#e8ffed;
-  font-family:monospace;
-  text-align:center;
-  box-shadow:0 0 2rem rgba(10, 255, 70, 0.3);
+
+canvas {
+  display: block;
 }
-.welcome-dialog::backdrop{
-  background:rgba(0, 0, 0, 0.72);
-  backdrop-filter:blur(3px);
+
+.secret-spin-button {
+  position: fixed;
+  z-index: 1;
+  width: 200px;
+  height: 200px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  opacity: 0;
+  cursor: pointer;
 }
-.welcome-dialog h1{
-  margin:0 0 2rem;
-  color:#37ff67;
-  font-size:clamp(1.5rem, 5vw, 2rem);
-  text-shadow:0 0 0.8rem rgba(55, 255, 103, 0.65);
+
+@keyframes screen-spin {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(10);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  to {
+    transform: scale(1);
+  }
 }
-.welcome-dialog h1:focus{
-  outline:none;
+
+.welcome-dialog {
+  width: min(26rem, calc(100% - 4rem));
+  padding: 2.5rem;
+  border: 1px solid #37ff67;
+  border-radius: 1rem;
+  background: rgba(0, 12, 5, 0.96);
+  color: #e8ffed;
+  font-family: monospace;
+  text-align: center;
+  box-shadow: 0 0 2rem rgba(10, 255, 70, 0.3);
 }
-.pill-options{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:1rem;
+
+.welcome-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(3px);
 }
-.pill{
-  min-width:8rem;
-  padding:0.8rem 1.5rem;
-  border:2px solid currentColor;
-  border-radius:999px;
-  background:transparent;
-  color:#fff;
-  font:700 1rem/1 monospace;
-  cursor:pointer;
-  transition:transform 150ms ease, box-shadow 150ms ease;
+
+.welcome-dialog h1 {
+  margin: 0 0 2rem;
+  color: #37ff67;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  text-shadow: 0 0 0.8rem rgba(55, 255, 103, 0.65);
 }
+
+.welcome-dialog h1:focus {
+  outline: none;
+}
+
+.pill-options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.pill {
+  min-width: 8rem;
+  padding: 0.8rem 1.5rem;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  background: transparent;
+  color: #fff;
+  font: 700 1rem/1 monospace;
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
 .pill:hover,
-.pill:focus-visible{
-  transform:translateY(-2px);
-  box-shadow:0 0 1rem currentColor;
+.pill:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 0 1rem currentColor;
 }
-.pill--red{
-  border-color:#ff4050;
-  background:rgba(255, 35, 55, 0.18);
-  color:#ff6470;
+
+.pill--red {
+  border-color: #ff4050;
+  background: rgba(255, 35, 55, 0.18);
+  color: #ff6470;
 }
-.pill--blue{
-  border-color:#438cff;
-  background:rgba(30, 100, 255, 0.18);
-  color:#70aaff;
+
+.pill--blue {
+  border-color: #438cff;
+  background: rgba(30, 100, 255, 0.18);
+  color: #70aaff;
 }
-@media (max-width: 24rem){
-  .welcome-dialog{
-    padding:2rem 1.25rem;
+
+@media (max-width: 24rem) {
+  .welcome-dialog {
+    padding: 2rem 1.25rem;
   }
 }
