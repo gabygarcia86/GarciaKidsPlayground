@@ -35,7 +35,7 @@
   let toastTimer;
   let poopTimer = null;
   let poopStopTimer = null;
-  let soundEnabled = false;
+  let soundEnabled = true;
   let audioContext = null;
   let lastHudDistance = -1;
   let lastHudStars = -1;
