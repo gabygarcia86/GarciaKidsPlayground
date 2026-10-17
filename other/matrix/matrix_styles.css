@@ -27,6 +27,9 @@ canvas{
   font-size:clamp(1.5rem, 5vw, 2rem);
   text-shadow:0 0 0.8rem rgba(55, 255, 103, 0.65);
 }
+.welcome-dialog h1:focus{
+  outline:none;
+}
 .pill-options{
   display:flex;
   flex-wrap:wrap;
@@ -48,10 +51,6 @@ canvas{
 .pill:focus-visible{
   transform:translateY(-2px);
   box-shadow:0 0 1rem currentColor;
-}
-.pill:focus-visible{
-  outline:2px solid #fff;
-  outline-offset:4px;
 }
 .pill--red{
   border-color:#ff4050;
