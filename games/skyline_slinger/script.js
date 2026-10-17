@@ -565,9 +565,15 @@
       context.fillStyle = "rgba(255, 255, 255, .12)";
       context.fillRect(x, building.top, building.width, 5);
       context.fillStyle = "rgba(133, 217, 255, .58)";
-      for (let wx = x + 15; wx < x + building.width - 12; wx += 29) {
+      for (
+        let windowOffset = 15;
+        windowOffset < building.width - 12;
+        windowOffset += 29
+      ) {
+        const wx = x + windowOffset;
+        const worldX = building.x + windowOffset;
         for (let wy = building.top + 24; wy < height; wy += 34) {
-          const lit = Math.sin(wx * 0.17 + wy * 0.08) > -0.25;
+          const lit = Math.sin(worldX * 0.17 + wy * 0.08) > -0.25;
           if (lit) {
             context.fillRect(wx, wy, 11, 14);
             context.fillStyle = "rgba(210, 242, 255, .2)";
