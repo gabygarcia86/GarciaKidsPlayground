@@ -28,6 +28,7 @@
   let player;
   let cameraX = 0;
   let distance = 0;
+  let timeRemaining = 60;
   let collectedStars = 0;
   let attachedAnchor = null;
   let ropeLength = 0;
@@ -39,6 +40,7 @@
   let audioContext = null;
   let lastHudDistance = -1;
   let lastHudStars = -1;
+  let lastHudTime = -1;
   const poopLayer = document.getElementById("poop-layer");
 
   function seededRandom() {
@@ -109,6 +111,7 @@
     swingHeld = false;
     cameraX = 0;
     distance = 0;
+    timeRemaining = 60;
     collectedStars = 0;
     player = {
       x: 48,
@@ -128,6 +131,7 @@
     swingButton.classList.remove("is-held");
     lastHudDistance = -1;
     lastHudStars = -1;
+    lastHudTime = -1;
     updateHud();
     playTone(560, 0.1);
   }
@@ -154,6 +158,11 @@
     if (collectedStars !== lastHudStars) {
       starValue.textContent = collectedStars;
       lastHudStars = collectedStars;
+    }
+    const shownTime = Math.ceil(timeRemaining);
+    if (shownTime !== lastHudTime) {
+      document.getElementById("time-value").textContent = shownTime;
+      lastHudTime = shownTime;
     }
   }
 
@@ -351,6 +360,12 @@
 
   function update(delta) {
     if (state !== "playing" || !player) return;
+    timeRemaining = Math.max(0, timeRemaining - delta / 1000);
+    updateHud();
+    if (timeRemaining === 0) {
+      finishRun();
+      return;
+    }
     const step = Math.min(delta / 16.667, 2.3);
     extendWorld();
 
