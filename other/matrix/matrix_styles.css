@@ -6,3 +6,65 @@ body{
 canvas{
   display:block;
 }
+.welcome-dialog{
+  width:min(26rem, calc(100% - 4rem));
+  padding:2.5rem;
+  border:1px solid #37ff67;
+  border-radius:1rem;
+  background:rgba(0, 12, 5, 0.96);
+  color:#e8ffed;
+  font-family:monospace;
+  text-align:center;
+  box-shadow:0 0 2rem rgba(10, 255, 70, 0.3);
+}
+.welcome-dialog::backdrop{
+  background:rgba(0, 0, 0, 0.72);
+  backdrop-filter:blur(3px);
+}
+.welcome-dialog h1{
+  margin:0 0 2rem;
+  color:#37ff67;
+  font-size:clamp(1.5rem, 5vw, 2rem);
+  text-shadow:0 0 0.8rem rgba(55, 255, 103, 0.65);
+}
+.pill-options{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:1rem;
+}
+.pill{
+  min-width:8rem;
+  padding:0.8rem 1.5rem;
+  border:2px solid currentColor;
+  border-radius:999px;
+  background:transparent;
+  color:#fff;
+  font:700 1rem/1 monospace;
+  cursor:pointer;
+  transition:transform 150ms ease, box-shadow 150ms ease;
+}
+.pill:hover,
+.pill:focus-visible{
+  transform:translateY(-2px);
+  box-shadow:0 0 1rem currentColor;
+}
+.pill:focus-visible{
+  outline:2px solid #fff;
+  outline-offset:4px;
+}
+.pill--red{
+  border-color:#ff4050;
+  background:rgba(255, 35, 55, 0.18);
+  color:#ff6470;
+}
+.pill--blue{
+  border-color:#438cff;
+  background:rgba(30, 100, 255, 0.18);
+  color:#70aaff;
+}
+@media (max-width: 24rem){
+  .welcome-dialog{
+    padding:2rem 1.25rem;
+  }
+}

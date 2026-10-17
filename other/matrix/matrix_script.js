@@ -1,5 +1,8 @@
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
+const welcomeDialog = document.querySelector(".welcome-dialog");
+const redPill = document.querySelector("#red-pill");
+const bluePill = document.querySelector("#blue-pill");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -21,6 +24,12 @@ const matrixColors = [
 let colorIndex = 0;
 const matrixSound = document.querySelector("#matrix-sound");
 const AudioContext = window.AudioContext || window.webkitAudioContext;
+
+welcomeDialog.showModal();
+redPill.addEventListener("click", () => welcomeDialog.close());
+bluePill.addEventListener("click", () => {
+  window.location.href = "../../index.html";
+});
 
 matrixSound.loop = true;
 window.setInterval(() => {
