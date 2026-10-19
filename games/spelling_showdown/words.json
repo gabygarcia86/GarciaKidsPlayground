@@ -1,15 +1,9 @@
 {
-  "week": "Week 1 · Sample Words",
+  "week": "Spelling Words",
   "words": [
     { "word": "planet" },
     { "word": "bright" },
     { "word": "cheerful" },
-    { "word": "remember" },
-    { "word": "whisper" },
-    { "word": "journey" },
-    { "word": "favorite" },
-    { "word": "discover" },
-    { "word": "careful" },
     { "word": "adventure" }
   ]
 }

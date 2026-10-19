@@ -88,7 +88,7 @@ footer { padding: 20px 0 25px; text-align: center; color: #9690aa; font-size: 12
 .results-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 22px 0; }
 .results-stats div { display: flex; flex-direction: column; gap: 4px; background: #faf9ff; border: 1px solid var(--line); padding: 14px 5px; border-radius: 14px; }
 .results-stats strong { font-size: 24px; }.results-stats span { font-size: 12px; color: var(--muted); }
-.review-area { text-align: left; margin: 18px 0; }.review-area h3 { font-size: 15px; }.review-list { display: flex; flex-wrap: wrap; gap: 8px; }.review-word { padding: 7px 11px; border-radius: 99px; background: #fff0f3; color: #bd3e60; font-size: 13px; font-weight: 800; }.review-empty { color: #15956f; font-size: 14px; font-weight: 750; }
+.review-area { text-align: left; margin: 18px 0; }.review-area h3 { font-size: 15px; }.review-list { display: grid; gap: 8px; }.review-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 10px 12px; border-radius: 12px; font-size: 14px; font-weight: 800; overflow-wrap: anywhere; }.review-row.correct { color: #117b5c; background: #e9faf4; }.review-row.incorrect { color: #bd3e60; background: #fff0f3; }
 .results-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
 .pin-dialog { width: min(420px, calc(100% - 24px)); border: 0; padding: 0; border-radius: 24px; color: var(--ink); box-shadow: 0 30px 100px rgba(25,16,58,.3); }
 .pin-dialog::backdrop { background: rgba(24,18,48,.58); backdrop-filter: blur(5px); }
@@ -119,6 +119,7 @@ footer { padding: 20px 0 25px; text-align: center; color: #9690aa; font-size: 12
   #answerForm { flex-direction: column; } #answerInput { width: 100%; }.submit-button { width: 100%; }
   .game-topline { flex-wrap: wrap; }.game-topline .progress-label { margin-left: auto; }
   .game-card { padding: 24px 18px; }.results-card { padding: 28px 18px; }
+  .review-row { grid-template-columns: 1fr; }
   .dialog-header { padding: 22px 20px 8px; }.dialog-intro { margin-left: 20px; margin-right: 20px; }.parent-form { padding-left: 20px; padding-right: 20px; }.pin-form { padding-left: 20px; padding-right: 20px; }.export-row { padding-left: 20px; padding-right: 20px; }
 }
 @media (max-width: 360px) {

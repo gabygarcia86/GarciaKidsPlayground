@@ -218,24 +218,23 @@ function showResults() {
   const review = $("reviewArea");
   review.replaceChildren();
   const heading = document.createElement("h3");
-  heading.textContent = missedWords.length ? "Words to practice again" : "You spelled every word correctly!";
+  heading.textContent = missedWords.length ? "Answer review" : "You spelled every word correctly!";
   review.appendChild(heading);
-  if (missedWords.length) {
-    const list = document.createElement("div");
-    list.className = "review-list";
-    missedWords.forEach(item => {
-      const chip = document.createElement("span");
-      chip.className = "review-word";
-      chip.textContent = item.word;
-      list.appendChild(chip);
-    });
-    review.appendChild(list);
-  } else {
-    const note = document.createElement("p");
-    note.className = "review-empty";
-    note.textContent = "Amazing work — keep that streak going!";
-    review.appendChild(note);
-  }
+  const list = document.createElement("div");
+  list.className = "review-list";
+  attempts.forEach(({ word, typed, correct: isCorrect }) => {
+    const row = document.createElement("div");
+    row.className = `review-row ${isCorrect ? "correct" : "incorrect"}`;
+    const submitted = document.createElement("span");
+    submitted.className = "review-answer";
+    submitted.textContent = `You wrote: ${typed}`;
+    const expected = document.createElement("span");
+    expected.className = "review-answer";
+    expected.textContent = `Correct: ${word}`;
+    row.append(submitted, expected);
+    list.appendChild(row);
+  });
+  review.appendChild(list);
   $("retryMissed").hidden = missedWords.length === 0;
   $("lastResult").hidden = false;
   $("lastResult").textContent = `Last session: ${percent}% correct · ${correct}/${total} words`;
