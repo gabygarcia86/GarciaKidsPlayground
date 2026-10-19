@@ -143,37 +143,39 @@
     </dialog>
 
     <dialog id="parentDialog" class="parent-dialog">
-      <div class="dialog-header">
-        <div><p class="eyebrow">GROWN-UPS ONLY</p><h2>Parent Zone</h2></div>
-        <button id="parentClose" class="icon-button" type="button"
-          aria-label="Close parent zone">✕</button>
-      </div>
-      <p class="dialog-intro">Update the weekly spelling list here, or edit
-        <code>words.json</code> in your project folder.</p>
-      <form id="parentForm" class="parent-form">
-        <label for="weekInput">Week or list name</label>
-        <input id="weekInput" type="text" maxlength="60"
-          placeholder="Week 2 · Short vowels">
-        <label for="wordsInput">Spelling words (one per line)</label>
-        <textarea id="wordsInput" rows="9"
-          placeholder="planet&#10;rocket&#10;galaxy"></textarea>
-        <p class="field-help">Click Reload JSON list to load words from json
-          file. Click Save to save the current list.
-        </p>
-        <div id="parentMessage" class="parent-message" role="status"
-          aria-live="polite"></div>
-        <div class="dialog-actions">
-          <button id="resetWords" class="button button-quiet"
-            type="button">Reload JSON list</button>
-          <button class="button button-primary" type="submit">Save This
-            Week</button>
+      <div class="parent-dialog-content">
+        <div class="dialog-header">
+          <div><p class="eyebrow">GROWN-UPS ONLY</p><h2>Parent Zone</h2></div>
+          <button id="parentClose" class="icon-button" type="button"
+            aria-label="Close parent zone">✕</button>
         </div>
-      </form>
-      <div class="export-row">
-        <button id="downloadJson" class="text-button" type="button">Download
-          current list as words.json ↓</button>
-        <span>For the hosted site, upload the downloaded file to GitHub to
-          update all devices.</span>
+        <p class="dialog-intro">Update the weekly spelling list here, or edit
+          <code>words.json</code> in your project folder.</p>
+        <form id="parentForm" class="parent-form">
+          <label for="weekInput">Week or list name</label>
+          <input id="weekInput" type="text" maxlength="60"
+            placeholder="Week 2 · Short vowels">
+          <label for="wordsInput">Spelling words (one per line)</label>
+          <textarea id="wordsInput" rows="9"
+            placeholder="planet&#10;rocket&#10;galaxy"></textarea>
+          <p class="field-help">Click Reload JSON list to load words from json
+            file. Click Save to save the current list.
+          </p>
+          <div id="parentMessage" class="parent-message" role="status"
+            aria-live="polite"></div>
+          <div class="dialog-actions">
+            <button id="resetWords" class="button button-quiet"
+              type="button">Reload JSON list</button>
+            <button class="button button-primary" type="submit">Save This
+              Week</button>
+          </div>
+        </form>
+        <div class="export-row">
+          <button id="downloadJson" class="text-button" type="button">Download
+            current list as words.json ↓</button>
+          <span>For the hosted site, upload the downloaded file to GitHub to
+            update all devices.</span>
+        </div>
       </div>
     </dialog>
 
