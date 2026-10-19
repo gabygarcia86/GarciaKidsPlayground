@@ -36,7 +36,7 @@ Supported format:
   "words": [
     "train",
     "coast",
-    { "word": "bright", "sentence": "The bright moon lit the path." }
+    { "word": "bright" }
   ]
 }
 ```
