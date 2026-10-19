@@ -560,6 +560,19 @@ body.drawing-page {
   }
 }
 
+@media (max-width: 850px) and (orientation: portrait) {
+  .toolbox {
+    display: block;
+    columns: 2;
+    column-gap: 24px;
+  }
+
+  .tool-group {
+    break-inside: avoid;
+    margin-bottom: 17px;
+  }
+}
+
 @media (max-width: 420px) {
   .drawing-app {
     width: calc(100% - 20px);
