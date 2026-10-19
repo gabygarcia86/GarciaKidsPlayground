@@ -14,6 +14,7 @@ const DEFAULT_LIST = {
   ]
 };
 
+const PARENT_PIN = "1644";
 const $ = (id) => document.getElementById(id);
 const screens = { home: $("homeScreen"), game: $("gameScreen"), results: $("resultsScreen") };
 let jsonList = DEFAULT_LIST;
@@ -247,6 +248,12 @@ function openParent() {
   $("parentMessage").className = "parent-message";
   $("parentDialog").showModal();
 }
+function requestParentAccess() {
+  $("pinMessage").textContent = "";
+  $("parentPin").value = "";
+  $("pinDialog").showModal();
+  $("parentPin").focus();
+}
 function saveParentList(event) {
   event.preventDefault();
   const words = $("wordsInput").value.split(/\r?\n/).map(word => word.trim()).filter(Boolean);
@@ -300,7 +307,22 @@ $("exitGame").addEventListener("click", () => {
 });
 $("homeButton").addEventListener("click", () => showScreen("home"));
 $("retryMissed").addEventListener("click", () => startGame("practice", missedWords));
-$("parentOpen").addEventListener("click", openParent);
+$("parentOpen").addEventListener("click", requestParentAccess);
+$("pinForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+  if ($("parentPin").value !== PARENT_PIN) {
+    $("pinMessage").textContent = "That PIN is not correct. Please try again.";
+    $("parentPin").select();
+    return;
+  }
+  $("pinDialog").close();
+  openParent();
+});
+$("pinCancel").addEventListener("click", () => $("pinDialog").close());
+$("pinCancelAction").addEventListener("click", () => $("pinDialog").close());
+$("pinDialog").addEventListener("click", (event) => {
+  if (event.target === $("pinDialog")) $("pinDialog").close();
+});
 $("parentClose").addEventListener("click", () => $("parentDialog").close());
 $("parentForm").addEventListener("submit", saveParentList);
 $("resetWords").addEventListener("click", resetToJson);

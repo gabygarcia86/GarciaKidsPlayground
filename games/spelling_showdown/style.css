@@ -90,6 +90,11 @@ footer { padding: 20px 0 25px; text-align: center; color: #9690aa; font-size: 12
 .results-stats strong { font-size: 24px; }.results-stats span { font-size: 12px; color: var(--muted); }
 .review-area { text-align: left; margin: 18px 0; }.review-area h3 { font-size: 15px; }.review-list { display: flex; flex-wrap: wrap; gap: 8px; }.review-word { padding: 7px 11px; border-radius: 99px; background: #fff0f3; color: #bd3e60; font-size: 13px; font-weight: 800; }.review-empty { color: #15956f; font-size: 14px; font-weight: 750; }
 .results-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+.pin-dialog { width: min(420px, calc(100% - 24px)); border: 0; padding: 0; border-radius: 24px; color: var(--ink); box-shadow: 0 30px 100px rgba(25,16,58,.3); }
+.pin-dialog::backdrop { background: rgba(24,18,48,.58); backdrop-filter: blur(5px); }
+.pin-form { padding: 0 27px 25px; display: flex; flex-direction: column; gap: 9px; }
+.pin-form label { font-size: 13px; font-weight: 850; margin-top: 5px; }
+.pin-form input { border: 2px solid var(--line); border-radius: 12px; padding: 12px; width: 100%; color: var(--ink); background: #fdfcff; letter-spacing: .25em; }
 .parent-dialog { width: min(620px, calc(100% - 24px)); max-height: min(90vh, 850px); border: 0; padding: 0; border-radius: 24px; color: var(--ink); box-shadow: 0 30px 100px rgba(25,16,58,.3); }
 .parent-dialog::backdrop { background: rgba(24,18,48,.58); backdrop-filter: blur(5px); }
 .dialog-header { display: flex; justify-content: space-between; align-items: center; padding: 25px 27px 8px; }.dialog-header h2 { margin: 0; font-size: 30px; letter-spacing: -.04em; }
@@ -114,7 +119,7 @@ footer { padding: 20px 0 25px; text-align: center; color: #9690aa; font-size: 12
   #answerForm { flex-direction: column; } #answerInput { width: 100%; }.submit-button { width: 100%; }
   .game-topline { flex-wrap: wrap; }.game-topline .progress-label { margin-left: auto; }
   .game-card { padding: 24px 18px; }.results-card { padding: 28px 18px; }
-  .dialog-header { padding: 22px 20px 8px; }.dialog-intro { margin-left: 20px; margin-right: 20px; }.parent-form { padding-left: 20px; padding-right: 20px; }.export-row { padding-left: 20px; padding-right: 20px; }
+  .dialog-header { padding: 22px 20px 8px; }.dialog-intro { margin-left: 20px; margin-right: 20px; }.parent-form { padding-left: 20px; padding-right: 20px; }.pin-form { padding-left: 20px; padding-right: 20px; }.export-row { padding-left: 20px; padding-right: 20px; }
 }
 @media (max-width: 360px) {
   .brand-mark { display: none; }

@@ -96,6 +96,23 @@
     <footer>Made for curious minds <span>✦</span> One word at a time</footer>
   </div>
 
+  <dialog id="pinDialog" class="pin-dialog" aria-labelledby="pinTitle">
+    <div class="dialog-header">
+      <div><p class="eyebrow">GROWN-UPS ONLY</p><h2 id="pinTitle">Enter PIN</h2></div>
+      <button id="pinCancel" class="icon-button" type="button" aria-label="Close PIN prompt">✕</button>
+    </div>
+    <p class="dialog-intro">Enter the parent PIN to open the Parent Zone.</p>
+    <form id="pinForm" class="pin-form">
+      <label for="parentPin">Parent PIN</label>
+      <input id="parentPin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="off" required aria-describedby="pinMessage">
+      <div id="pinMessage" class="parent-message error" role="alert" aria-live="assertive"></div>
+      <div class="dialog-actions">
+        <button id="pinCancelAction" class="button button-quiet" type="button">Cancel</button>
+        <button class="button button-primary" type="submit">Enter</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="parentDialog" class="parent-dialog">
     <div class="dialog-header">
       <div><p class="eyebrow">GROWN-UPS ONLY</p><h2>Parent Zone</h2></div>
