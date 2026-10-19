@@ -6,6 +6,7 @@ const isMobileDevice =
 
 const items = {
   games: [
+    { label: "Spelling Showdown", url: "games/spelling_showdown/index.html" },
     { label: "Math Blaster", url: "games/math_blaster/index.html" },
     { label: "Reading Knight", url: "games/reading_knight/index.html" },
     { label: "Multiple Choice", url: "multiple_choice.html" },
