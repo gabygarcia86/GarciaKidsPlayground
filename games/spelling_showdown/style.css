@@ -381,7 +381,7 @@ footer span {
 .game-screen {
   max-width: 700px;
   width: 100%;
-  margin: 20px auto 55px;
+  margin: 10px auto 10px;
   flex: 1;
 }
 
@@ -438,7 +438,7 @@ footer span {
   border: 1px solid var(--line);
   border-radius: 28px;
   box-shadow: var(--shadow);
-  padding: clamp(22px, 5vw, 44px);
+  padding: clamp(22px, 5vw, 22px);
   text-align: center;
 }
 
@@ -453,9 +453,9 @@ footer span {
   font-size: 29px;
 }
 
-.game-card h2 {
-  font-size: clamp(27px, 4vw, 38px);
-  margin: 0 0 10px;
+.game-card h3 {
+  font-size: clamp(20px, 4vw, 20px);
+  margin: 0 0 2px;
   letter-spacing: -.04em;
 }
 
@@ -539,7 +539,7 @@ footer span {
 .results-screen {
   max-width: 700px;
   width: 100%;
-  margin: 20px auto 55px;
+  margin: 20px auto 20px;
   flex: 1;
 }
 
@@ -818,8 +818,8 @@ footer span {
   }
 
   .topbar {
-    height: 70px;
-    gap: 8px;
+    height: 60px;
+    gap: 4px;
   }
 
   .back-home {
