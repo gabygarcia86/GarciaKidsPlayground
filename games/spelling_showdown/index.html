@@ -10,11 +10,13 @@
   <body>
     <div class="app-shell">
       <header class="topbar">
-        <a class="back-home" href="../../index.html">← Playground Home</a>
-        <a class="brand" href="#" aria-label="Spelling Showdown home">
+        <a class="back-home" href="../../index.html"><span
+            class="back-home-line">← Playground</span> <span
+            class="back-home-line">Home</span></a>
+        <div class="brand" aria-label="Spelling Showdown">
           <span class="brand-mark" aria-hidden="true">★</span>
-          <span>SPELLING <b>SHOWDOWN</b></span>
-        </a>
+          <span class="brand-title">SPELLING <b>SHOWDOWN</b></span>
+        </div>
         <button id="parentOpen" class="button button-quiet" type="button">Parent
           Zone ⚙</button>
       </header>
@@ -69,7 +71,7 @@
             <div class="question-icon" aria-hidden="true">🔊</div>
             -->
             <p id="promptEyebrow" class="eyebrow">LISTEN UP!</p>
-            <h2 id="promptTitle">Spell this word</h2>
+            <h3 id="promptTitle">Spell this word</h2>
             <p id="sentenceHint" class="sentence-hint" hidden></p>
             <button id="speakButton" class="button button-sound"
               type="button">🔊 Hear the Word Again</button>
