@@ -108,6 +108,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   border-radius: 14px;
   padding: 14px 20px;
   font-weight: 800;
+  font-size: 15px;
   transition: transform .15s, box-shadow .15s, background .15s;
 }
 
@@ -122,7 +123,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .button-primary {
   color: white;
   background: var(--purple);
-  box-shadow: 0 5px 0 var(--purple-dark);
+  box-shadow: 0 4px 0 var(--purple-dark);
 }
 
 .button-primary:hover {
@@ -208,6 +209,21 @@ h1 span {
   display: flex;
   flex-wrap: wrap;
   gap: 13px;
+}
+
+.home-actions .button {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.685);
+}
+
+.home-actions #testStart {
+  color: white;
+  background: #32b985;
+  border: 2px solid #32b985;
+  box-shadow: 0 4px 0 #21875f;
+}
+
+.home-actions #testStart:hover {
+  background: #28a875;
 }
 
 .small-note {
@@ -496,6 +512,7 @@ footer span {
 
 .submit-button {
   white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.685);
 }
 
 .feedback {
