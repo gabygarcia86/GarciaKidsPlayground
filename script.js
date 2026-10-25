@@ -11,6 +11,10 @@ const items = {
     { label: "Reading Knight", url: "games/reading_knight/index.html" },
     { label: "Multiple Choice", url: "multiple_choice.html" },
     {
+      label: "Skateboard Ninjas",
+      url: "games/skateboard_ninjas/index.html",
+    },
+    {
       label: "Rock Paper Scissors",
       url: "games/rock_paper_scissors/index.html",
     },
@@ -31,6 +35,10 @@ const items = {
     {
       label: "Photo Scavenger Hunt",
       url: "games/photo_scavenger_hunt/Parks_and_Playgrounds_Photo_Scavenger_Hunt.html",
+    },
+    {
+      label: "Hanukkah Game",
+      url: "./404.html",
     },
   ],
   movies: [
