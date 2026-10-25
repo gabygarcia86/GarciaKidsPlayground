@@ -285,7 +285,10 @@ export class HUD {
     });
     this.el.boardList.replaceChildren(...items);
     this.boardMessage(rows.length ? '' : 'No scores yet. Be the first!');
-    if (highlight && !marked) this.boardMessage(`Score submitted! ${fmt(highlight.score)} didn't crack the top 10 yet. Keep skating!`);
+    if (highlight && !marked) {
+      // Only a full board means the score was beaten; fewer rows means it isn't visible yet.
+      this.boardMessage(rows.length >= 10 ? `Score submitted! ${fmt(highlight.score)} didn't crack the top 10 yet. Keep skating!` : 'Score submitted!');
+    }
   }
 
   boardMessage(text, error = false) {
