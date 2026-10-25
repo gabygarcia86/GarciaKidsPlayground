@@ -4,8 +4,9 @@ A 60-second, side-scrolling skateboarding arcade game for desktop and mobile
 browsers. Your ninja skates on their own: you ollie, flip, grab, grind rails, and
 dodge angry Karens to score as much as you can before time runs out.
 
-Plain HTML, CSS, and JavaScript (ES modules) on Canvas 2D. No build step, no
-dependencies, no external services. All art is drawn with code, and all sound
+Plain HTML, CSS, and JavaScript (ES modules) on Canvas 2D. No build step and
+no dependencies; the only external service is the online leaderboard
+(Supabase, via `fetch`). All art is drawn with code, and all sound
 is synthesized with the Web Audio API, except the run songs: each run plays a
 random track from `assets/music/` (the menu keeps its synthesized loop).
 
@@ -171,6 +172,7 @@ SkateboardNinjas/
     ├── HUD.js            DOM HUD and screens
     ├── AudioManager.js   synthesized SFX + menu loop, run songs
     ├── Renderer.js       camera, layering, overlays, debug view
+    ├── leaderboard.js    online top 10 (Supabase REST API)
     ├── rng.js, storage.js
     └── art/              ninja (IK-posed puppet), Karen, props, parallax city
 ```
@@ -185,6 +187,14 @@ SkateboardNinjas/
 - Canvas resolution is capped at 2× device pixel ratio. Background buildings are
   rendered once to cached offscreen canvases.
 - Personal best and daily best go to `localStorage`. If storage is blocked, the game keeps running and just doesn't save them.
+- The online leaderboard lives in Supabase: scores are inserted into the `scores`
+  table (`id`, `nickname`, `score`, `created_at`) and the top 10 is read from the
+  `leaderboard` view. After a run, **SUBMIT HIGH SCORE** asks for a name
+  (up to 16 characters, remembered for next time) and posts it once per run;
+  **VIEW LEADERBOARD** (title and results screens) shows the top 10. The anon key
+  in `src/leaderboard.js` is public by design, so row-level security must let
+  `anon` insert into `scores` and select from `leaderboard`. If the network is down, the
+  game still plays and the leaderboard screens show an error.
 
 ## Known limitations
 

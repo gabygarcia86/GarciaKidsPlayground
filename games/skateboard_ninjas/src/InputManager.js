@@ -211,6 +211,8 @@ export class InputManager {
 
   onKeyDown(e) {
     const code = e.code;
+    // Typing a name: only Escape (to cancel) reaches the game.
+    if (e.target instanceof HTMLInputElement && e.target.type === 'text' && code !== 'Escape') return;
     const isGameKey = code === 'Space' || code === 'KeyQ' || code === 'KeyE' || code in FLIP_KEYS || code in GRAB_KEYS;
     if (isGameKey && this.gameplay) e.preventDefault();
     if (e.repeat) return;

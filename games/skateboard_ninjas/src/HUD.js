@@ -30,6 +30,14 @@ export class HUD {
       countdownNum: $('countdown-num'),
       pause: $('pause-screen'),
       results: $('results-screen'),
+      submit: $('submit-screen'),
+      leaderboard: $('leaderboard-screen'),
+      submitBtn: $('submit-btn'),
+      submitName: $('submit-name'),
+      submitSend: $('submit-send-btn'),
+      submitMsg: $('submit-msg'),
+      boardList: $('board-list'),
+      boardMsg: $('board-msg'),
       titleBest: $('title-best'),
       titleDaily: $('title-daily'),
       newBest: $('new-best'),
@@ -53,6 +61,16 @@ export class HUD {
     on('pause-title-btn', handlers.title);
     on('again-btn', handlers.again);
     on('results-title-btn', handlers.title);
+    on('leaderboard-btn', handlers.leaderboard);
+    on('results-board-btn', handlers.leaderboard);
+    on('board-back-btn', handlers.leaderboardBack);
+    on('submit-btn', handlers.openSubmit);
+    on('submit-cancel-btn', handlers.closeSubmit);
+    $('submit-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      handlers.submitScore(this.el.submitName.value);
+    });
+    this.el.submitName.addEventListener('input', () => this.submitMessage(''));
     on('fullscreen-btn', handlers.fullscreen);
     $('pause-btn').addEventListener('pointerdown', (e) => { e.preventDefault(); handlers.pause(); });
     for (const id of ['sfx-toggle', 'pause-sfx-toggle']) on(id, handlers.toggleSfx);
@@ -67,7 +85,7 @@ export class HUD {
   }
 
   showScreen(name) {
-    for (const key of ['title', 'customize', 'countdown', 'pause', 'results']) {
+    for (const key of ['title', 'customize', 'countdown', 'pause', 'results', 'submit', 'leaderboard']) {
       this.el[key].classList.toggle('off', key !== name);
     }
   }
@@ -206,5 +224,73 @@ export class HUD {
     $('res-near').textContent = fmt(r.nearMisses);
     $('res-wipeouts').textContent = fmt(r.wipeouts);
     this.el.newBest.hidden = !r.newBest;
+  }
+
+  // ---------------------------------------------------------- leaderboard
+
+  // Results-screen submit button: one submission per run, none for a zero score.
+  setSubmitState(state) {
+    const b = this.el.submitBtn;
+    b.disabled = state !== 'ready';
+    b.textContent = state === 'done' ? 'SCORE SUBMITTED!' : 'SUBMIT HIGH SCORE';
+  }
+
+  openSubmit(score, name) {
+    $('submit-score').textContent = fmt(score);
+    this.el.submitName.value = name;
+    this.submitMessage('');
+    this.setSubmitBusy(false);
+    this.el.submitName.focus();
+    this.el.submitName.select();
+  }
+
+  setSubmitBusy(busy) {
+    this.el.submitSend.disabled = busy;
+    this.el.submitSend.textContent = busy ? 'SENDING…' : 'SUBMIT';
+    this.el.submitName.disabled = busy;
+  }
+
+  submitMessage(text, error = false) {
+    this.el.submitMsg.textContent = text;
+    this.el.submitMsg.classList.toggle('error', error);
+  }
+
+  showBoardLoading() {
+    this.el.boardList.replaceChildren();
+    this.boardMessage('Loading scores…');
+    $('board-back-btn').focus();
+  }
+
+  // rows: [{ name, score }] sorted best first. highlight: the entry just submitted.
+  showBoard(rows, highlight) {
+    let marked = false;
+    const items = rows.map((r, i) => {
+      const li = document.createElement('li');
+      li.className = 'board-row';
+      if (!marked && highlight && r.name === highlight.name && r.score === highlight.score) {
+        li.classList.add('mine');
+        marked = true;
+      }
+      const rank = document.createElement('span');
+      rank.className = 'board-rank';
+      rank.textContent = String(i + 1);
+      const name = document.createElement('span');
+      name.className = 'board-name';
+      name.textContent = r.name;
+      const score = document.createElement('span');
+      score.className = 'board-score';
+      score.textContent = fmt(r.score);
+      li.append(rank, name, score);
+      return li;
+    });
+    this.el.boardList.replaceChildren(...items);
+    this.boardMessage(rows.length ? '' : 'No scores yet. Be the first!');
+    if (highlight && !marked) this.boardMessage(`Score submitted! ${fmt(highlight.score)} didn't crack the top 10 yet. Keep skating!`);
+  }
+
+  boardMessage(text, error = false) {
+    this.el.boardMsg.textContent = text;
+    this.el.boardMsg.classList.toggle('error', error);
+    this.el.boardMsg.hidden = !text;
   }
 }

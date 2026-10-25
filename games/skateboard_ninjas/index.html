@@ -121,6 +121,7 @@
             <button id="play-btn" class="btn btn-primary" type="button">PLAY</button>
             <button id="daily-btn" class="btn btn-secondary" type="button">DAILY CHALLENGE</button>
             <button id="customize-btn" class="btn btn-pink" type="button">CUSTOMIZE</button>
+            <button id="leaderboard-btn" class="btn btn-green" type="button">VIEW LEADERBOARD</button>
           </div>
           <p class="best-row">BEST <strong id="title-best">0</strong> <span class="dot">&bull;</span> TODAY'S DAILY <strong id="title-daily">&mdash;</strong></p>
           <div class="toggles">
@@ -271,10 +272,45 @@
           <div><dt>Near misses</dt><dd id="res-near">0</dd></div>
           <div><dt>Wipeouts</dt><dd id="res-wipeouts">0</dd></div>
         </dl>
-        <div class="menu-buttons">
-          <button id="again-btn" class="btn btn-primary" type="button">PLAY AGAIN</button>
-          <button id="results-title-btn" class="btn btn-secondary" type="button">TITLE</button>
+        <div class="results-actions">
+          <div class="menu-buttons">
+            <button id="again-btn" class="btn btn-primary" type="button">PLAY AGAIN</button>
+            <button id="results-title-btn" class="btn btn-secondary" type="button">TITLE</button>
+          </div>
+          <div class="menu-buttons results-online">
+            <button id="submit-btn" class="btn btn-pink" type="button">SUBMIT HIGH SCORE</button>
+            <button id="results-board-btn" class="btn btn-green" type="button">VIEW LEADERBOARD</button>
+          </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Submit score -->
+    <section id="submit-screen" class="screen off">
+      <form id="submit-form" class="panel small-panel submit-panel" novalidate>
+        <h2>SUBMIT SCORE</h2>
+        <div class="final-score">
+          <span>YOUR SCORE</span>
+          <strong id="submit-score">0</strong>
+        </div>
+        <label class="submit-label" for="submit-name">ENTER YOUR NAME</label>
+        <input id="submit-name" class="name-input" type="text" maxlength="16" autocomplete="nickname" autocapitalize="words" spellcheck="false" enterkeyhint="send" placeholder="Ninja name">
+        <p id="submit-msg" class="board-msg" role="status" aria-live="polite"></p>
+        <div class="menu-buttons">
+          <button id="submit-send-btn" class="btn btn-primary" type="submit">SUBMIT</button>
+          <button id="submit-cancel-btn" class="btn btn-ghost" type="button">CANCEL</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Leaderboard -->
+    <section id="leaderboard-screen" class="screen off">
+      <div class="panel small-panel board-panel">
+        <h2>LEADERBOARD</h2>
+        <p class="board-sub">TOP 10 NINJAS</p>
+        <ol id="board-list" class="board-list"></ol>
+        <p id="board-msg" class="board-msg" role="status" aria-live="polite"></p>
+        <button id="board-back-btn" class="btn btn-primary" type="button">BACK</button>
       </div>
     </section>
 

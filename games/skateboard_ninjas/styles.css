@@ -437,7 +437,10 @@ button:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px soli
 .btn-primary { background: var(--yellow); font-size: clamp(18px, 2.8vw, 26px); padding: 12px 34px; }
 .btn-secondary { background: var(--cyan); }
 .btn-pink { background: var(--pink); }
+.btn-green { background: var(--green); }
 .btn-ghost { background: transparent; color: var(--white); border-color: rgba(255, 255, 255, 0.4); box-shadow: none; }
+.btn:disabled { opacity: 0.55; cursor: default; transform: none; box-shadow: 0 5px 0 var(--ink); }
+.btn-ghost:disabled { box-shadow: none; }
 
 .best-row { margin: 0; font: 800 12px/1.4 var(--font-display); letter-spacing: 0.06em; color: var(--muted); }
 .best-row strong { color: var(--yellow); font-size: 15px; }
@@ -577,7 +580,9 @@ button:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px soli
 }
 
 /* Results */
-.results-panel { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; width: min(560px, 100%); }
+.results-panel { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; width: min(600px, 100%); }
+.results-actions { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.results-online .btn { font-size: clamp(13px, 1.8vw, 16px); padding: 10px 16px; }
 .new-best {
   padding: 6px 16px;
   border-radius: 999px;
@@ -598,6 +603,59 @@ button:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px soli
 .stats dt { font: 800 10px/1.2 var(--font-display); letter-spacing: 0.04em; color: var(--muted); text-transform: uppercase; }
 .stats dd { margin: 2px 0 0; font: 900 16px/1.2 var(--font-display); color: var(--yellow); }
 
+/* Submit score */
+.submit-panel { width: min(480px, 100%); }
+.submit-label { font: 900 12px/1 var(--font-display); letter-spacing: 0.12em; color: var(--muted); }
+
+.name-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 3px solid var(--cyan);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--white);
+  font: 900 clamp(18px, 3vw, 24px)/1.1 var(--font-display);
+  text-align: center;
+  letter-spacing: 0.04em;
+  user-select: text;
+  -webkit-user-select: text;
+  touch-action: manipulation;
+}
+
+.name-input::placeholder { color: rgba(255, 255, 255, 0.35); }
+.name-input:focus { outline: none; border-color: var(--yellow); box-shadow: 0 0 0 4px rgba(255, 210, 63, 0.25); }
+.name-input:disabled { opacity: 0.6; }
+
+.board-msg { margin: 0; min-height: 1.4em; font-weight: 700; font-size: 13px; color: var(--muted); }
+.board-msg[hidden] { display: none; }
+.board-msg.error { color: #ffb3c1; }
+
+/* Leaderboard */
+.board-panel { width: min(460px, 100%); gap: 10px; }
+.board-sub { margin: -4px 0 0; font: 900 12px/1 var(--font-display); letter-spacing: 0.12em; color: var(--muted); }
+
+.board-list { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; gap: 4px; }
+
+.board-row {
+  display: grid;
+  grid-template-columns: 2.2em minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  font: 900 15px/1.2 var(--font-display);
+  text-align: left;
+}
+
+.board-rank { color: var(--muted); text-align: right; }
+.board-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--white); }
+.board-score { color: var(--yellow); font-variant-numeric: tabular-nums; }
+.board-row:nth-child(1) .board-rank { color: var(--yellow); }
+.board-row:nth-child(2) .board-rank { color: #dfe6f5; }
+.board-row:nth-child(3) .board-rank { color: #ff9f1c; }
+.board-row.mine { background: rgba(77, 255, 154, 0.2); box-shadow: inset 0 0 0 2px var(--green); }
+
 .noscript { position: absolute; inset: 0; display: grid; place-items: center; }
 
 /* ---------- Responsive tweaks ---------- */
@@ -615,6 +673,13 @@ button:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px soli
   .final-score strong { font-size: 40px; }
   .results-panel { gap: 6px; }
   .btn { padding: 9px 18px; }
+  /* All four results buttons share one row so none fall below the fold. */
+  .results-panel { width: min(720px, 100%); }
+  .results-actions { flex-flow: row wrap; justify-content: center; gap: 8px; }
+  .results-actions .menu-buttons { display: contents; }
+  .results-actions .btn { font-size: 14px; padding: 8px 14px; }
+  .board-panel { gap: 6px; }
+  .board-row { padding: 3px 10px; font-size: 13px; }
   .hud-box { padding: 3px 9px 4px; min-width: 64px; }
 }
 

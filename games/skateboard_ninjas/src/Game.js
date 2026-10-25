@@ -4,7 +4,8 @@
 // States: title (with a self-playing demo) → countdown → playing → ending
 // (time's up, waiting for a safe landing) → results. Any active state can be
 // paused. The customize screen opens from the title with the demo still
-// skating behind it.
+// skating behind it. The leaderboard opens from the title or results (and
+// the submit-score form from results); BACK returns to where it came from.
 
 import { CONFIG } from './config.js';
 import { RNG, randomSeed, dailySeed, todayKey } from './rng.js';
@@ -21,6 +22,7 @@ import { Renderer } from './Renderer.js';
 import { updateKaren, hitKaren, killKaren } from './Karen.js';
 import { Shurikens } from './Shurikens.js';
 import { Customizer } from './Customizer.js';
+import { leaderboard, cleanName } from './leaderboard.js';
 
 const P = CONFIG.physics;
 const S = CONFIG.scoring;
@@ -30,7 +32,7 @@ const START_X = 0;
 const UNITS_PER_METER = 40;
 const DIRS = ['up', 'down', 'left', 'right'];
 const ACTIVE = new Set(['countdown', 'playing', 'ending']);
-const MENU = new Set(['title', 'customize']);
+const MENU = new Set(['title', 'customize', 'leaderboard', 'submit']);
 const fmt = (n) => Math.round(n).toLocaleString('en-US');
 const KAREN_DEBRIS = ['#36c0ae', '#f4d35e', '#f7c6a3', '#a0522d'];
 const NINJA_DEBRIS = ['#d62839', '#1c0c16', '#e9edf7', '#9c1a2b'];
@@ -68,6 +70,11 @@ export class Game {
     this.best = storage.get('best', 0);
     this.customizer = new Customizer(storage);
     this.demoTrick = false;
+    this.boardFrom = 'title'; // screen the leaderboard / submit form returns to
+    this.boardRequest = 0; // ignores a slow leaderboard load once a newer one starts
+    this.lastScore = 0;
+    this.submitState = 'none'; // 'none' | 'ready' | 'done' for the last run's score
+    this.submitting = false;
 
     const params = new URLSearchParams(location.search);
     const seedParam = params.get('seed');
@@ -95,6 +102,11 @@ export class Game {
       toggleSfx: () => this.toggleSfx(),
       toggleMusic: () => this.toggleMusic(),
       fullscreen: () => this.toggleFullscreen(),
+      leaderboard: () => this.openLeaderboard(),
+      leaderboardBack: () => this.closeLeaderboard(),
+      openSubmit: () => this.openSubmit(),
+      closeSubmit: () => this.closeSubmit(),
+      submitScore: (name) => this.submitScore(name),
     });
     this.input.attach({
       canvas: this.canvas,
@@ -199,6 +211,69 @@ export class Game {
     this.audio.play('click');
   }
 
+  openLeaderboard(highlight = null) {
+    if (this.state === 'title' || this.state === 'results') this.boardFrom = this.state;
+    else if (this.state !== 'submit') return;
+    this.state = 'leaderboard';
+    this.hud.showScreen('leaderboard');
+    this.hud.showBoardLoading();
+    this.audio.play('click');
+    const req = ++this.boardRequest;
+    const stale = () => req !== this.boardRequest || this.state !== 'leaderboard';
+    leaderboard.top(10).then(
+      (rows) => { if (!stale()) this.hud.showBoard(rows, highlight); },
+      () => { if (!stale()) this.hud.boardMessage("Couldn't load the leaderboard. Check your connection and try again.", true); },
+    );
+  }
+
+  closeLeaderboard() {
+    if (this.state !== 'leaderboard') return;
+    this.state = this.boardFrom;
+    this.hud.showScreen(this.state);
+    this.audio.play('click');
+  }
+
+  openSubmit() {
+    if (this.state !== 'results' || this.submitState !== 'ready') return;
+    this.boardFrom = 'results';
+    this.state = 'submit';
+    this.hud.showScreen('submit');
+    this.hud.openSubmit(this.lastScore, this.storage.get('playerName', ''));
+    this.audio.play('click');
+  }
+
+  closeSubmit() {
+    if (this.state !== 'submit' || this.submitting) return;
+    this.state = 'results';
+    this.hud.showScreen('results');
+    this.audio.play('click');
+  }
+
+  async submitScore(rawName) {
+    if (this.state !== 'submit' || this.submitting) return;
+    const name = cleanName(rawName);
+    if (!name) {
+      this.hud.submitMessage('Type your name first!', true);
+      return;
+    }
+    this.submitting = true;
+    this.hud.setSubmitBusy(true);
+    this.hud.submitMessage('');
+    const score = Math.round(this.lastScore);
+    try {
+      await leaderboard.submit(name, score);
+      this.submitState = 'done';
+      this.storage.set('playerName', name);
+      this.hud.setSubmitState('done');
+      this.submitting = false;
+      this.openLeaderboard({ name, score });
+    } catch {
+      this.submitting = false;
+      this.hud.setSubmitBusy(false);
+      this.hud.submitMessage("Couldn't submit your score. Check your connection and try again.", true);
+    }
+  }
+
   newRun(mode) {
     this.audio.unlock();
     this.audio.quiet = false;
@@ -270,6 +345,9 @@ export class Game {
     }
     const dayKey = todayKey();
     if (this.mode === 'daily' && score > this.storage.get(`daily.${dayKey}`, 0)) this.storage.set(`daily.${dayKey}`, score);
+    this.lastScore = score;
+    this.submitState = score > 0 ? 'ready' : 'none';
+    this.hud.setSubmitState(this.submitState);
     this.hud.setPlaying(false);
     this.hud.showResults({
       ...s.stats,
@@ -321,6 +399,11 @@ export class Game {
       case 'title':
       case 'customize':
         this.updateAttract(dt);
+        break;
+      case 'leaderboard':
+      case 'submit':
+        // Over the title the demo keeps skating; over results the world stays frozen.
+        if (this.boardFrom === 'title') this.updateAttract(dt);
         break;
       case 'countdown': {
         const before = Math.ceil(this.countdown);
@@ -461,11 +544,14 @@ export class Game {
         break;
       case 'pause':
         if (this.state === 'customize') this.closeCustomize();
+        else if (this.state === 'leaderboard') this.closeLeaderboard();
+        else if (this.state === 'submit') this.closeSubmit();
         else if (this.state === 'paused') this.resume();
         else this.pause();
         break;
       case 'confirm':
         if (this.state === 'customize') this.closeCustomize();
+        else if (this.state === 'leaderboard') this.closeLeaderboard();
         else if (this.state === 'title') this.newRun('random');
         else if (this.state === 'results') this.newRun(this.mode);
         else if (this.state === 'paused') this.resume();
