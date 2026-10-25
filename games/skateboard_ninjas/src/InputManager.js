@@ -173,6 +173,14 @@ export class InputManager {
     window.addEventListener('keydown', (e) => this.onKeyDown(e));
     window.addEventListener('keyup', (e) => this.onKeyUp(e));
     window.addEventListener('blur', () => this.clear());
+    const releaseSticks = (e) => {
+      for (const stick of this.sticks) stick.onUp(e);
+    };
+    window.addEventListener('pointerup', releaseSticks);
+    window.addEventListener('pointercancel', releaseSticks);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) this.clear();
+    });
   }
 
   emit(type, dir = null) {
