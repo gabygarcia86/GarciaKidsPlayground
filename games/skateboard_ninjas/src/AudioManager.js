@@ -202,6 +202,19 @@ export class AudioManager {
       case 'beep':
         this.tone(t, 'square', 660, 660, 0.12, 0.15);
         break;
+      case 'tick':
+        // Last-seconds warning: high and loud enough to cut through the run song,
+        // which is briefly ducked underneath it.
+        this.tone(t, 'square', 1320, 1320, 0.16, 0.5);
+        this.tone(t, 'triangle', 1980, 1980, 0.16, 0.3);
+        if (this.musicOn) {
+          const g = this.musicBus.gain;
+          g.cancelScheduledValues(t);
+          g.setValueAtTime(0.4, t);
+          g.linearRampToValueAtTime(0.15, t + 0.02);
+          g.setTargetAtTime(0.4, t + 0.2, 0.08);
+        }
+        break;
       case 'go':
         this.tone(t, 'square', 990, 990, 0.32, 0.17);
         break;

@@ -350,7 +350,13 @@ export class Game {
     const p = this.player;
     const playing = this.state === 'playing';
     this.simTime += dt;
-    if (playing) this.elapsed = Math.min(RUN.duration, this.elapsed + dt);
+    if (playing) {
+      const before = RUN.duration - this.elapsed;
+      this.elapsed = Math.min(RUN.duration, this.elapsed + dt);
+      // Beep as the clock crosses each of the last 5 whole seconds (TIME! covers zero).
+      const left = RUN.duration - this.elapsed;
+      if (left > 0 && left <= 5 && Math.ceil(left) < Math.ceil(before)) this.audio.play('tick');
+    }
 
     // After time's up the skater rolls to a stop, braking short of any gap.
     const cruise = lerp(P.baseSpeed, P.maxSpeed, this.elapsed / RUN.duration);
