@@ -14,7 +14,7 @@ const BPM = 100;
 
 // Browsers can't list a folder, so the run songs are named here. Each is ~63 s:
 // the countdown plus the 60 s run.
-const SONGS = Array.from({ length: 10 }, (_, i) => `assets/music/Song${String(i + 1).padStart(2, '0')}.mp3`);
+const SONGS = Array.from({ length: 11 }, (_, i) => `assets/music/Song${String(i + 1).padStart(2, '0')}.mp3`);
 // Run songs sit a touch above the menu music on the shared music bus.
 const SONG_GAIN = 3.0;
 
