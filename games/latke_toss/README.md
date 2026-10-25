@@ -16,7 +16,7 @@ Built with plain HTML, CSS, JavaScript ES modules and [Three.js](https://threejs
    - A dotted arc previews the throw. Medium and Hard show only part of the arc.
    - A tiny drag, or a drag pointing back toward you, cancels the throw.
 4. Every latke you land lights one candle on the **menorah**. The shamash (center) lights first, then the candles from right to left. When all nine are lit, a **2x** badge appears on your score and every latke after that is worth **2 points** for the rest of the round. The candles go out again at the start of each round.
-5. Hit any **dreidel** with a latke to knock it spinning and make about 10 gold coins (gelt) rain down onto the table. One dreidel sits in front of the pot and one behind it. Gelt is just for fun and doesn't change your score.
+5. Hit any **dreidel** with a latke to knock it spinning and make about 10 gold coins (gelt) rain down onto the table. One dreidel sits in front of the pot and one behind it. Each hit also doubles your points for **10 seconds**. This stacks with the menorah bonus and with other dreidel hits, so with all candles lit and one dreidel boost active, every latke is worth 4 points. The badge on your score shows the current total.
 6. A latke scores only if it drops **through the pot opening**. Hitting the rim or the outside wall does not count. A clean entry without touching the rim shows "Swish!".
 7. **Pause** with the ⏸ button, `Esc` or `P`. ↻ restarts the round and 🔊 toggles sound.
 
@@ -77,6 +77,7 @@ All gameplay numbers live in [`js/config.js`](js/config.js).
 | Menorah bonus | `MENORAH.candles`, `MENORAH.multiplier` | Candles needed and the points per latke once they're all lit. The menorah's position and size are `MENORAH_POSITION` and `MENORAH_SCALE` in `js/scene.js`. |
 | Gelt shower | `GELT.coinsPerHit`, `spreadSeconds`, `lingerSeconds`, `poolSize` | Coins per dreidel hit, how spread out the shower is, how long coins stay on the table, and the most coins on screen at once. |
 | Dreidel hit size | `DREIDEL.radius`, `DREIDEL.height` | Collision cylinder before each dreidel's scale. Dreidel positions and sizes are in `dreidelSpecs` in `js/scene.js`. |
+| Dreidel bonus | `DREIDEL.bonusMultiplier`, `DREIDEL.bonusSeconds` | Points multiplier from each dreidel hit and how long it lasts. |
 
 Pot motion is a pure function of round time: `x(t) = center.x + amplitude.x · sin(speed.x · t + phase.x)`, and the same for y and z. That makes it smooth, deterministic and independent of frame rate. Restarting resets `t` to 0.
 

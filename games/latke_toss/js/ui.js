@@ -92,6 +92,7 @@ export class UI {
 
   setMultiplier(multiplier) {
     this.multiplierBadge.textContent = `${multiplier}\u00d7`;
+    this.multiplierBadge.setAttribute('aria-label', `${multiplier} times points`);
     this.multiplierBadge.classList.toggle('hidden', multiplier <= 1);
   }
 

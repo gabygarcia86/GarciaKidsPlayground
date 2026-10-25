@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { ROUND, PHYSICS, LAUNCH, LATKE, POT, DIFFICULTIES, MENORAH } from './config.js';
+import { ROUND, PHYSICS, LAUNCH, LATKE, POT, DIFFICULTIES, MENORAH, DREIDEL } from './config.js';
 import { Pot } from './pot.js';
 import { LatkePool } from './latke.js';
 import { SplashEffects } from './particles.js';
@@ -216,7 +216,9 @@ export class Game {
     this.pausedFrom = null;
     this.difficultyKey = loadDifficulty();
     this.score = 0;
-    this.multiplier = 1; // becomes MENORAH.multiplier once every candle is lit
+    this.multiplier = 1; // points per latke: menorah bonus times every active dreidel boost
+    this.menorahMultiplier = 1; // becomes MENORAH.multiplier once every candle is lit
+    this.dreidelBoosts = []; // roundElapsed time at which each active dreidel boost expires
     this.simTime = 0; // drives pot motion; advances in fixed steps
     this.roundElapsed = 0; // drives the countdown; only advances while PLAYING
     this.accumulator = 0;
@@ -388,8 +390,9 @@ export class Game {
     this.gelt.clear();
     this.gameScene.resetDreidels();
     this.gameScene.resetCandles();
-    this.multiplier = 1;
-    this.ui.setMultiplier(1);
+    this.menorahMultiplier = 1;
+    this.dreidelBoosts.length = 0;
+    this._updateMultiplier();
     this.pot.reset();
     this.aimVisuals.hide();
     this.score = 0;
@@ -541,11 +544,11 @@ export class Game {
     if (lit === 0) return;
     this.effects.sparkleBurst(_candlePosition);
     this.audio.play('candle', lit);
-    if (lit >= MENORAH.candles && this.multiplier === 1) {
-      this.multiplier = MENORAH.multiplier;
+    if (lit >= MENORAH.candles && this.menorahMultiplier === 1) {
+      this.menorahMultiplier = MENORAH.multiplier;
       this.gameScene.setMiracle(true);
-      this.ui.setMultiplier(this.multiplier);
-      this.ui.showBanner(`${this.multiplier}\u00d7 Points!`, { gold: true, duration: 1800 });
+      this._updateMultiplier();
+      this.ui.showBanner(`${MENORAH.multiplier}\u00d7 Points!`, { gold: true, duration: 1800 });
       setTimeout(() => this.audio.play('miracle'), 250);
     }
   }
@@ -574,7 +577,19 @@ export class Game {
     this.effects.sparkleBurst(_worldHit);
     this.audio.play('dreidel');
     _worldHit.y += 0.4;
-    this._popupAt(_worldHit, 'Gelt!', 'gelt');
+    if (this.state !== GameState.PLAYING) {
+      this._popupAt(_worldHit, 'Gelt!', 'gelt');
+      return;
+    }
+    this.dreidelBoosts.push(this.roundElapsed + DREIDEL.bonusSeconds);
+    this._updateMultiplier();
+    this._popupAt(_worldHit, `Gelt!<small>${DREIDEL.bonusMultiplier}\u00d7 for ${DREIDEL.bonusSeconds}s</small>`, 'gelt');
+  }
+
+  // Combines the menorah bonus with every active dreidel boost.
+  _updateMultiplier() {
+    this.multiplier = this.menorahMultiplier * DREIDEL.bonusMultiplier ** this.dreidelBoosts.length;
+    this.ui.setMultiplier(this.multiplier);
   }
 
   _popupAt(world, html, className) {
@@ -591,6 +606,11 @@ export class Game {
   _step(h) {
     if (this.state === GameState.PLAYING) {
       this.roundElapsed += h;
+      if (this.dreidelBoosts.length > 0 && this.dreidelBoosts[0] <= this.roundElapsed) {
+        // Boosts are pushed in hit order, so expired ones are always at the front.
+        while (this.dreidelBoosts.length > 0 && this.dreidelBoosts[0] <= this.roundElapsed) this.dreidelBoosts.shift();
+        this._updateMultiplier();
+      }
       if (this.roundElapsed >= ROUND.durationSeconds) this._endRound();
     }
     // The pot keeps gliding during the brief game-over wind-down; the timer does not.

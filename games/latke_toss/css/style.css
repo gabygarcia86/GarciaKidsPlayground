@@ -157,7 +157,7 @@ body.can-grab #canvas-host canvas {
   min-width: 110px;
 }
 
-/* "2x" badge shown on the score box while the menorah bonus is active. */
+/* "2x" badge shown on the score box while any points multiplier is active. */
 .hud-mult {
   position: absolute;
   top: -9px;

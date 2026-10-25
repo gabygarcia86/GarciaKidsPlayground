@@ -151,4 +151,8 @@ export const DREIDEL = {
   radius: 0.36,
   height: 1.05,
   restitution: 0.4,
+  // Each dreidel hit multiplies points by `bonusMultiplier` for `bonusSeconds`. Boosts
+  // stack with each other and with the menorah bonus.
+  bonusMultiplier: 2,
+  bonusSeconds: 10,
 };
