@@ -4,9 +4,16 @@
 
 import { hash } from '../rng.js';
 import { rampHeight } from '../World.js';
+import { THEMES } from './themes.js';
 
 const TAU = Math.PI * 2;
 const OUT = '#1b1030';
+
+// Street colors for the current time of day (see themes.js).
+let street = THEMES.sunset.street;
+export function setStreetTheme(theme) {
+  street = theme.street;
+}
 
 function outline(ctx, w = 2.4) {
   ctx.lineWidth = w;
@@ -312,11 +319,11 @@ function ledge(ctx, r) {
 // The sidewalk band (behind the lane), the curb face, and the road below.
 export function drawStreet(ctx, left, right, bottom, gaps) {
   const w = right - left;
-  ctx.fillStyle = '#d4cdea';
+  ctx.fillStyle = street.walk;
   ctx.fillRect(left, -34, w, 34);
-  ctx.fillStyle = '#e8e2f8';
+  ctx.fillStyle = street.walkEdge;
   ctx.fillRect(left, -34, w, 4);
-  ctx.strokeStyle = 'rgba(80,60,130,0.25)';
+  ctx.strokeStyle = street.walkLines;
   ctx.lineWidth = 2;
   ctx.beginPath();
   for (let x = Math.floor(left / 90) * 90; x < right; x += 90) {
@@ -324,15 +331,15 @@ export function drawStreet(ctx, left, right, bottom, gaps) {
     ctx.lineTo(x - 14, 0);
   }
   ctx.stroke();
-  ctx.fillStyle = '#9b92bd';
+  ctx.fillStyle = street.curb;
   ctx.fillRect(left, 0, w, 18);
-  ctx.fillStyle = '#7d73a3';
+  ctx.fillStyle = street.curbShadow;
   ctx.fillRect(left, 15, w, 3);
-  ctx.fillStyle = '#3a3360';
+  ctx.fillStyle = street.road;
   ctx.fillRect(left, 18, w, bottom - 18);
   ctx.fillStyle = '#ffd23f';
   for (let x = Math.floor(left / 140) * 140; x < right; x += 140) ctx.fillRect(x, 66, 70, 6);
-  ctx.fillStyle = 'rgba(255,255,255,0.08)';
+  ctx.fillStyle = street.roadSheen;
   ctx.fillRect(left, 18, w, 6);
 
   for (const g of gaps) {
@@ -393,18 +400,21 @@ function lamp(ctx, x) {
   ctx.lineWidth = 5;
   ctx.strokeStyle = '#2d2a4a';
   ctx.stroke();
-  ctx.fillStyle = '#ffe9a3';
+  const on = street.lampGlow > 0; // lamps are off in daylight
+  ctx.fillStyle = on ? '#ffe9a3' : '#e6e2d4';
   ctx.beginPath();
   ctx.ellipse(x + 24, base - 156, 9, 5, 0, 0, TAU);
   ctx.fill();
-  ctx.fillStyle = 'rgba(255,233,163,0.15)';
-  ctx.beginPath();
-  ctx.moveTo(x + 16, base - 154);
-  ctx.lineTo(x + 32, base - 154);
-  ctx.lineTo(x + 52, base);
-  ctx.lineTo(x - 4, base);
-  ctx.closePath();
-  ctx.fill();
+  if (on) {
+    ctx.fillStyle = `rgba(255,233,163,${street.lampGlow})`;
+    ctx.beginPath();
+    ctx.moveTo(x + 16, base - 154);
+    ctx.lineTo(x + 32, base - 154);
+    ctx.lineTo(x + 52, base);
+    ctx.lineTo(x - 4, base);
+    ctx.closePath();
+    ctx.fill();
+  }
   // a little banner
   ctx.fillStyle = '#ff3d7f';
   ctx.fillRect(x + 3, base - 128, 14, 26);

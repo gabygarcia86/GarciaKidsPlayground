@@ -1,9 +1,10 @@
-// Parallax city: sunset sky, synthwave sun, clouds, a far skyline, mid-rise
-// buildings and street-level shopfronts. Buildings are pre-rendered into a
+// Parallax city: sky (sunset, day or night, see themes.js), sun or moon,
+// clouds, a far skyline, mid-rise buildings and street-level shopfronts. Buildings are pre-rendered into a
 // small set of cached offscreen canvases and laid out in shuffled blocks, so
 // the scenery is endless but cheap to draw and never repeats side by side.
 
 import { hash } from '../rng.js';
+import { THEMES } from './themes.js';
 
 const TAU = Math.PI * 2;
 const MID_COLORS = ['#6c5ce7', '#4b7bec', '#e8566c', '#f39c4a', '#2bb3a3', '#d65db1', '#5b5fa8', '#3fa4d8'];
@@ -20,6 +21,15 @@ export class Background {
     this.px = 1;
     this.sky = null;
     this.skyKey = '';
+    this.theme = THEMES.sunset;
+  }
+
+  // Building sprites bake in the theme's colors, so a new theme repaints them.
+  setTheme(theme) {
+    if (theme === this.theme) return;
+    this.theme = theme;
+    this.cache.clear();
+    this.sky = null;
   }
 
   // Called on resize: cached sprites are rendered at the current resolution.
@@ -32,7 +42,10 @@ export class Background {
   draw(ctx, camX, camY, viewW, viewH, groundY, time) {
     const horizon = groundY - 34;
     this.drawSky(ctx, viewW, viewH, groundY);
-    this.drawSun(ctx, viewW, horizon, camY);
+    if (this.theme.stars) this.drawStars(ctx, camX, viewW, horizon, time);
+    if (this.theme.body === 'retroSun') this.drawSun(ctx, viewW, horizon, camY);
+    else if (this.theme.body === 'sun') this.drawDaySun(ctx, viewW, horizon, camY);
+    else this.drawMoon(ctx, viewW, horizon, camY);
     this.drawClouds(ctx, camX, viewW, horizon, camY, time);
     this.drawFar(ctx, camX * 0.12, viewW, horizon + camY * 0.12);
     this.drawLayer(ctx, 'mid', camX * 0.35, viewW, horizon + camY * 0.35, 200, MID_VARIANTS);
@@ -43,10 +56,7 @@ export class Background {
     const key = `${viewW}|${viewH}|${groundY}`;
     if (!this.sky || this.skyKey !== key) {
       const g = ctx.createLinearGradient(0, 0, 0, groundY);
-      g.addColorStop(0, '#24154f');
-      g.addColorStop(0.45, '#7a2f8f');
-      g.addColorStop(0.78, '#ff6f91');
-      g.addColorStop(1, '#ffc36b');
+      for (const [at, color] of this.theme.sky) g.addColorStop(at, color);
       this.sky = g;
       this.skyKey = key;
     }
@@ -73,10 +83,64 @@ export class Background {
     }
   }
 
+  drawDaySun(ctx, viewW, horizon, camY) {
+    const x = viewW * 0.74;
+    const y = horizon - 270 + camY * 0.05;
+    const halo = ctx.createRadialGradient(x, y, 30, x, y, 120);
+    halo.addColorStop(0, 'rgba(255,248,200,0.6)');
+    halo.addColorStop(1, 'rgba(255,248,200,0)');
+    ctx.fillStyle = halo;
+    ctx.fillRect(x - 120, y - 120, 240, 240);
+    const g = ctx.createRadialGradient(x - 10, y - 10, 4, x, y, 44);
+    g.addColorStop(0, '#fffbe0');
+    g.addColorStop(1, '#ffd23f');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, 44, 0, TAU);
+    ctx.fill();
+  }
+
+  drawMoon(ctx, viewW, horizon, camY) {
+    const x = viewW * 0.74;
+    const y = horizon - 260 + camY * 0.05;
+    const r = 38;
+    const halo = ctx.createRadialGradient(x, y, r, x, y, r * 3);
+    halo.addColorStop(0, 'rgba(200,215,255,0.28)');
+    halo.addColorStop(1, 'rgba(200,215,255,0)');
+    ctx.fillStyle = halo;
+    ctx.fillRect(x - r * 3, y - r * 3, r * 6, r * 6);
+    ctx.fillStyle = '#f2efdc';
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(170,165,150,0.45)';
+    for (const [cx, cy, cr] of [[-12, -8, 8], [10, 6, 10], [-6, 16, 5], [16, -16, 5]]) {
+      ctx.beginPath();
+      ctx.arc(x + cx, y + cy, cr, 0, TAU);
+      ctx.fill();
+    }
+  }
+
+  // Twinkling stars, nearly fixed to the screen with a hint of parallax.
+  drawStars(ctx, camX, viewW, horizon, time) {
+    const off = camX * 0.02;
+    const slot = 40;
+    ctx.fillStyle = '#fff';
+    for (let i = Math.floor(off / slot) - 1; i <= Math.floor((off + viewW) / slot) + 1; i++) {
+      if (hash(i, 41) < 0.35) continue;
+      const x = i * slot - off + hash(i, 42) * slot;
+      const y = hash(i, 43) * (horizon - 120);
+      const s = 1 + hash(i, 44) * 1.6;
+      ctx.globalAlpha = 0.45 + 0.55 * Math.abs(Math.sin(time * (0.8 + hash(i, 45) * 1.5) + i));
+      ctx.fillRect(x, y, s, s);
+    }
+    ctx.globalAlpha = 1;
+  }
+
   drawClouds(ctx, camX, viewW, horizon, camY, time) {
     const off = camX * 0.05 + time * 8;
     const slot = 320;
-    ctx.fillStyle = 'rgba(255, 220, 240, 0.55)';
+    ctx.fillStyle = this.theme.cloud;
     for (let i = Math.floor(off / slot) - 1; i <= Math.floor((off + viewW) / slot) + 1; i++) {
       if (hash(i, 3) < 0.35) continue;
       const x = i * slot - off + hash(i, 4) * 120;
@@ -93,7 +157,7 @@ export class Background {
   // Silhouette skyline with the occasional pagoda.
   drawFar(ctx, off, viewW, base) {
     const slot = 70;
-    ctx.fillStyle = '#5b3a8c';
+    ctx.fillStyle = this.theme.far;
     for (let i = Math.floor(off / slot) - 1; i <= Math.floor((off + viewW) / slot) + 1; i++) {
       const x = i * slot - off;
       const r = hash(i, 9);
@@ -116,6 +180,25 @@ export class Background {
       const w = slot - 4 - hash(i, 10) * 18;
       ctx.fillRect(x, base - h, w, h);
       if (hash(i, 11) > 0.7) ctx.fillRect(x + w * 0.4, base - h - 24, 3, 24);
+    }
+    if (this.theme.farLights) this.drawFarLights(ctx, off, viewW, base);
+  }
+
+  // Scattered lit windows on the far skyline at night (same layout as drawFar).
+  drawFarLights(ctx, off, viewW, base) {
+    const slot = 70;
+    ctx.fillStyle = 'rgba(255,214,120,0.75)';
+    for (let i = Math.floor(off / slot) - 1; i <= Math.floor((off + viewW) / slot) + 1; i++) {
+      const r = hash(i, 9);
+      if (r > 0.92) continue; // pagodas stay dark
+      const x = i * slot - off;
+      const h = 70 + r * 170;
+      const w = slot - 4 - hash(i, 10) * 18;
+      for (let row = 0, wy = base - h + 10; wy < base - 12; row++, wy += 16) {
+        for (let col = 0, wx = x + 6; wx < x + w - 6; col++, wx += 12) {
+          if (hash(i * 131 + row * 11 + col, 47) > 0.82) ctx.fillRect(wx, wy, 3, 4);
+        }
+      }
     }
   }
 
@@ -157,8 +240,8 @@ export class Background {
     canvas.height = Math.max(1, Math.ceil(h * this.px));
     const g = canvas.getContext('2d');
     g.scale(this.px, this.px);
-    if (layer === 'mid') paintTower(g, w, h, r, idx);
-    else paintShop(g, w, h, r, idx);
+    if (layer === 'mid') paintTower(g, w, h, r, idx, this.theme);
+    else paintShop(g, w, h, r, idx, this.theme);
     v = { canvas, w, h };
     this.cache.set(key, v);
     return v;
@@ -175,7 +258,17 @@ function shuffledOrder(n, block, salt) {
   return order;
 }
 
-function paintTower(g, w, h, r, idx) {
+// Wash the sprite drawn so far in the theme's tint (night darkens, day lifts).
+function applyTint(g, w, h, theme) {
+  if (!theme.tint) return;
+  g.save();
+  g.globalCompositeOperation = 'source-atop';
+  g.fillStyle = theme.tint;
+  g.fillRect(0, 0, w, h);
+  g.restore();
+}
+
+function paintTower(g, w, h, r, idx, theme) {
   const color = MID_COLORS[Math.floor(r(3) * MID_COLORS.length)];
   const roof = 18;
   g.fillStyle = color;
@@ -193,13 +286,14 @@ function paintTower(g, w, h, r, idx) {
     g.fillRect(w * 0.55, roof - 10, 20, 10);
     g.fillRect(w * 0.3, roof - 7, 14, 7);
   }
-  // windows
+  applyTint(g, w, h, theme);
+  // windows (after the tint so lit ones glow at night)
   const cols = Math.floor((w - 16) / 22);
   const rows = Math.floor((h - roof - 20) / 26);
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const lit = hash(row * 17 + col * 3 + Math.floor(r(5) * 1000), 2) > 0.45;
-      g.fillStyle = lit ? '#ffe08a' : 'rgba(25,15,55,0.55)';
+      const lit = hash(row * 17 + col * 3 + Math.floor(r(5) * 1000), 2) > 1 - theme.litChance;
+      g.fillStyle = lit ? theme.litWindow : theme.darkWindow;
       g.fillRect(12 + col * 22, roof + 14 + row * 26, 12, 15);
     }
   }
@@ -216,7 +310,7 @@ function paintTower(g, w, h, r, idx) {
   }
 }
 
-function paintShop(g, w, h, r, idx) {
+function paintShop(g, w, h, r, idx, theme) {
   const color = SHOP_COLORS[Math.floor(r(3) * SHOP_COLORS.length)];
   const accent = SHOP_COLORS[(Math.floor(r(3) * SHOP_COLORS.length) + 3) % SHOP_COLORS.length];
   g.fillStyle = color;
@@ -225,19 +319,6 @@ function paintShop(g, w, h, r, idx) {
   g.fillRect(0, h - 10, w, 10);
   g.fillStyle = 'rgba(255,255,255,0.2)';
   g.fillRect(0, 0, w, 5);
-
-  // sign board
-  const word = SIGNS[idx];
-  g.fillStyle = '#1a1033';
-  g.fillRect(16, 10, w - 32, 28);
-  g.strokeStyle = accent;
-  g.lineWidth = 3;
-  g.strokeRect(18, 12, w - 36, 24);
-  g.font = `900 18px ${FONT}`;
-  g.textAlign = 'center';
-  g.textBaseline = 'middle';
-  g.fillStyle = accent;
-  g.fillText(word, w / 2, 25);
 
   // striped awning
   const ay = 44;
@@ -252,10 +333,12 @@ function paintShop(g, w, h, r, idx) {
     g.fill();
   }
 
-  // big window with reflections + door
+  applyTint(g, w, h, theme);
+
+  // big window with reflections + door (after the tint so shops glow at night)
   const wy = ay + 24;
   const wh = h - wy - 12;
-  g.fillStyle = '#9fd8ff';
+  g.fillStyle = theme.shopWindow;
   g.fillRect(14, wy, w * 0.58, wh);
   g.fillStyle = 'rgba(255,255,255,0.45)';
   g.beginPath();
@@ -274,4 +357,17 @@ function paintShop(g, w, h, r, idx) {
   g.strokeStyle = '#1a1033';
   g.lineWidth = 3;
   g.strokeRect(14, wy, w * 0.58, wh);
+
+  // sign board (also after the tint, so it stays bright like neon)
+  const word = SIGNS[idx];
+  g.fillStyle = '#1a1033';
+  g.fillRect(16, 10, w - 32, 28);
+  g.strokeStyle = accent;
+  g.lineWidth = 3;
+  g.strokeRect(18, 12, w - 36, 24);
+  g.font = `900 18px ${FONT}`;
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillStyle = accent;
+  g.fillText(word, w / 2, 25);
 }

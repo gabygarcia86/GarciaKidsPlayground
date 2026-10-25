@@ -174,7 +174,8 @@ SkateboardNinjas/
     ├── Renderer.js       camera, layering, overlays, debug view
     ├── leaderboard.js    online top 10 (Supabase REST API)
     ├── rng.js, storage.js
-    └── art/              ninja (IK-posed puppet), Karen, props, parallax city
+    └── art/              ninja (IK-posed puppet), Karen, props, parallax city,
+                          themes.js (sunset / day / night palettes)
 ```
 
 ## Technical notes
@@ -184,6 +185,10 @@ SkateboardNinjas/
   doesn't drift with the frame rate and doesn't advance while paused or counting down.
 - The game auto-pauses when the tab is hidden and suspends the audio context.
 - Level objects and particles are pooled, so nothing is allocated per frame on the hot path.
+- Every run (and every return to the title) picks a random time of day: sunset,
+  day or night, never the same one twice in a row. Only the sky, buildings and
+  street change; characters and props keep their colors. Palettes live in
+  `src/art/themes.js`.
 - Canvas resolution is capped at 2× device pixel ratio. Background buildings are
   rendered once to cached offscreen canvases.
 - Personal best and daily best go to `localStorage`. If storage is blocked, the game keeps running and just doesn't save them.

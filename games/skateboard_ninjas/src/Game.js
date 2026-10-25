@@ -23,6 +23,7 @@ import { updateKaren, hitKaren, killKaren } from './Karen.js';
 import { Shurikens } from './Shurikens.js';
 import { Customizer } from './Customizer.js';
 import { leaderboard, cleanName } from './leaderboard.js';
+import { THEME_NAMES } from './art/themes.js';
 
 const P = CONFIG.physics;
 const S = CONFIG.scoring;
@@ -70,6 +71,7 @@ export class Game {
     this.best = storage.get('best', 0);
     this.customizer = new Customizer(storage);
     this.demoTrick = false;
+    this.theme = '';
     this.boardFrom = 'title'; // screen the leaderboard / submit form returns to
     this.boardRequest = 0; // ignores a slow leaderboard load once a newer one starts
     this.lastScore = 0;
@@ -163,6 +165,9 @@ export class Game {
   // ------------------------------------------------------------ state changes
 
   setupWorld(seed, attract) {
+    // Fresh time of day each run (and each visit to the title), never the same twice in a row.
+    this.theme = this.fx.pick(THEME_NAMES.filter((n) => n !== this.theme));
+    this.renderer.setTheme(this.theme);
     this.seed = seed;
     this.world.reset();
     this.level.reset(new RNG(seed), START_X, { attract });

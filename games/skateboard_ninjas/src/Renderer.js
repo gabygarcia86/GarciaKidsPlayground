@@ -8,7 +8,8 @@ import { lerp, clamp } from './Physics.js';
 import { Background } from './art/background.js';
 import { NinjaAnimator, drawBoard, drawShuriken } from './art/ninja.js';
 import { drawKaren, drawEvilNinja, drawWarning } from './art/karen.js';
-import { drawObstacle, drawRamp, drawRail, drawStreet, drawSidewalkDecor } from './art/props.js';
+import { drawObstacle, drawRamp, drawRail, drawStreet, drawSidewalkDecor, setStreetTheme } from './art/props.js';
+import { THEMES } from './art/themes.js';
 
 const FONT = '"Arial Black", "Segoe UI Black", Impact, system-ui, sans-serif';
 const BASE_VIEW_H = 540;
@@ -53,6 +54,13 @@ export class Renderer {
     const minBelow = 105 + (viewH - BASE_VIEW_H) * 0.5;
     this.groundY = viewH - clamp(controlsCss * unitsPerCss + 10, minBelow, viewH * 0.42);
     this.bg.invalidate(this.px);
+  }
+
+  // name: 'sunset' | 'day' | 'night'
+  setTheme(name) {
+    const theme = THEMES[name];
+    this.bg.setTheme(theme);
+    setStreetTheme(theme);
   }
 
   addShake(amount) {
