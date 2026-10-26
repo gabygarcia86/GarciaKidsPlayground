@@ -515,6 +515,16 @@ export class GameScene {
     menorah.group.position.copy(MENORAH_POSITION);
     menorah.group.scale.setScalar(MENORAH_SCALE);
     this.scene.add(menorah.group);
+    this.menorah = menorah.group;
+    this.menorah.userData.shake = 0; // 1 right after a latke hits it, decaying to 0
+    // Latke hit shape in world units (see collideWithMenorah).
+    this.menorah.userData.hit = {
+      armTop: 1.95 * MENORAH_SCALE,
+      armRadius: 1.53 * MENORAH_SCALE, // outer arm plus its candle cup
+      top: 2.6 * MENORAH_SCALE,
+      stemRadius: 0.09 * MENORAH_SCALE,
+      halfDepth: 0.1 * MENORAH_SCALE,
+    };
     this.flames = menorah.flames;
     this.candlesLit = 0;
     this.miracle = false;
@@ -602,7 +612,15 @@ export class GameScene {
     const boost = this.miracle ? 1.3 + 0.08 * Math.sin(elapsed * 4) : 1;
     for (const flame of this.flames) {
       const data = flame.userData;
-      if (!data.lit) continue;
+      if (!data.lit) {
+        // A candle that was just put out shrinks away.
+        if (data.douse > 0) {
+          data.douse = Math.max(0, data.douse - dt * 4);
+          flame.scale.setScalar(Math.max(0.001, data.douse));
+          if (data.douse === 0) flame.visible = false;
+        }
+        continue;
+      }
       data.ignite = Math.min(1, data.ignite + dt * 2.5);
       // Quick overshoot "pop" as the wick catches, then a steady flicker.
       const grow = data.ignite < 1 ? Math.sin(data.ignite * Math.PI * 0.75) / Math.sin(Math.PI * 0.75) : 1;
@@ -613,6 +631,12 @@ export class GameScene {
     }
     const glow = this.candlesLit * (0.7 + 0.1 * Math.sin(elapsed * 11) + 0.05 * Math.sin(elapsed * 27));
     this.flameLight.intensity = glow * (this.miracle ? 1.4 : 1);
+
+    // A knocked menorah rocks on its base, then settles.
+    const shake = this.menorah.userData.shake;
+    this.menorah.rotation.z = shake * 0.16 * Math.sin(elapsed * 38);
+    this.menorah.rotation.x = shake * 0.05 * Math.sin(elapsed * 29);
+    this.menorah.userData.shake = Math.max(0, shake - dt * 1.8);
 
     for (const dreidel of this.dreidels) {
       const data = dreidel.userData;
@@ -645,6 +669,24 @@ export class GameScene {
     return this.candlesLit;
   }
 
+  /**
+   * Puts out the most recently lit candle. Writes its flame's world position into `out` and
+   * returns true, or false if no candle was lit.
+   */
+  extinguishCandle(out) {
+    if (this.candlesLit === 0) return false;
+    this.candlesLit--;
+    const flame = this.flames[CANDLE_LIGHT_ORDER[this.candlesLit]];
+    flame.userData.lit = false;
+    flame.userData.douse = flame.scale.x;
+    flame.getWorldPosition(out);
+    return true;
+  }
+
+  knockMenorah() {
+    this.menorah.userData.shake = 1;
+  }
+
   setMiracle(active) {
     this.miracle = active;
   }
@@ -653,10 +695,13 @@ export class GameScene {
     for (const flame of this.flames) {
       flame.userData.lit = false;
       flame.userData.ignite = 0;
+      flame.userData.douse = 0;
       flame.visible = false;
     }
     this.candlesLit = 0;
     this.miracle = false;
+    this.menorah.userData.shake = 0;
+    this.menorah.rotation.set(0, 0, 0);
   }
 
   knockDreidel(dreidel) {

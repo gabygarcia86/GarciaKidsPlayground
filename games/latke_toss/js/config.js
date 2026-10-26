@@ -127,6 +127,8 @@ export const PARTICLES = {
 export const MENORAH = {
   candles: 9,
   multiplier: 2,
+  // Bounce off the menorah when a latke hits it (which also puts out a candle).
+  restitution: 0.3,
 };
 
 // Chocolate-coin shower triggered by hitting a dreidel with a latke.

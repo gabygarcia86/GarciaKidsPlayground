@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { PHYSICS, POT, LATKE, DREIDEL } from './config.js';
+import { PHYSICS, POT, LATKE, DREIDEL, MENORAH } from './config.js';
 
 export const LatkeState = Object.freeze({
   INACTIVE: 'inactive',
@@ -226,6 +226,36 @@ export function collideWithDreidel(body, dreidel) {
   }
   body.velocity.x *= 0.8;
   body.velocity.z *= 0.8;
+  body.angularVelocity.multiplyScalar(0.7);
+  return true;
+}
+
+/**
+ * Latke vs. menorah, treating it as a thin upright slab facing the player, shaped like the
+ * menorah (dimensions in its userData.hit): everything above the outer arm's arc up to the
+ * candle tops, plus the stem. On contact the latke bounces off the front or back face.
+ * Returns true on hit.
+ */
+export function collideWithMenorah(body, menorah) {
+  const p = body.position;
+  const hit = menorah.userData.hit;
+  const margin = LATKE.radius * 0.6;
+  const depth = hit.halfDepth + margin;
+  const dz = p.z - menorah.position.z;
+  if (Math.abs(dz) >= depth) return false;
+  const dx = Math.abs(p.x - menorah.position.x);
+  const dy = p.y - menorah.position.y;
+  if (dy > hit.top + margin || dy < -LATKE.thickness) return false;
+  const reach = hit.armRadius + margin;
+  const inStem = dx < hit.stemRadius + margin && dy < hit.armTop;
+  const inBranches = dx < reach && dy > hit.armTop - Math.sqrt(reach * reach - dx * dx);
+  if (!inStem && !inBranches) return false;
+
+  // Push out through the face the latke came from.
+  const side = Math.sign(body.previousPosition.z - menorah.position.z) || Math.sign(dz) || 1;
+  p.z = menorah.position.z + side * depth;
+  if (body.velocity.z * side < 0) body.velocity.z *= -MENORAH.restitution;
+  body.velocity.x *= 0.8;
   body.angularVelocity.multiplyScalar(0.7);
   return true;
 }

@@ -7,7 +7,7 @@ import { GeltShower } from './gelt.js';
 import { AimController } from './controls.js';
 import {
   LatkeBody, LatkeState, CollisionResult, stepBody, simulateTrajectory, collideWithPot, collideWithTable,
-  collideWithDreidel,
+  collideWithDreidel, collideWithMenorah,
 } from './physics.js';
 
 export const GameState = Object.freeze({
@@ -179,6 +179,7 @@ class ThrownLatke {
     this.scored = false;
     this.lastClank = -1;
     this.hitDreidels = new Set(); // each dreidel rains gelt once per latke
+    this.hitMenorah = false; // each latke puts out at most one candle
   }
 }
 
@@ -437,6 +438,7 @@ export class Game {
     thrown.scored = false;
     thrown.lastClank = -1;
     thrown.hitDreidels.clear();
+    thrown.hitMenorah = false;
     // Random resting yaw shows a different side of the irregular outline each time.
     thrown.restQuaternion.setFromAxisAngle(_up, Math.random() * Math.PI * 2);
     thrown.body.reset(REST_POSITION, thrown.restQuaternion);
@@ -580,6 +582,21 @@ export class Game {
     this._popupAt(_worldHit, `Gelt!<small>${DREIDEL.bonusMultiplier}\u00d7 for ${DREIDEL.bonusSeconds}s</small>`, 'gelt');
   }
 
+  // Knocking the menorah shakes it and puts out the most recently lit candle.
+  _registerMenorahHit() {
+    this.gameScene.knockMenorah();
+    this.audio.play('rim');
+    if (this.state !== GameState.PLAYING || !this.gameScene.extinguishCandle(_candlePosition)) return;
+    if (this.menorahMultiplier !== 1) {
+      // The bonus needs every candle lit, so losing one ends it until they are all lit again.
+      this.menorahMultiplier = 1;
+      this.gameScene.setMiracle(false);
+      this._updateMultiplier();
+    }
+    _candlePosition.y += 0.3;
+    this._popupAt(_candlePosition, 'Candle out!', 'miss');
+  }
+
   // Combines the menorah bonus with every active dreidel boost.
   _updateMultiplier() {
     this.multiplier = this.menorahMultiplier * DREIDEL.bonusMultiplier ** this.dreidelBoosts.length;
@@ -660,6 +677,10 @@ export class Game {
         thrown.hitDreidels.add(dreidel);
         this._registerDreidelHit(dreidel);
       }
+    }
+    if (collideWithMenorah(body, this.gameScene.menorah) && !thrown.hitMenorah) {
+      thrown.hitMenorah = true;
+      this._registerMenorahHit();
     }
 
     const tableHit = collideWithTable(body, h);
