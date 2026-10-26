@@ -528,7 +528,7 @@ export class Game {
 
     const clean = !thrown.body.touchedPot;
     _worldHit.y += 0.6;
-    this._popupAt(_worldHit, `+${points}${clean ? '<small>Swish!</small>' : ''}`, points > 1 ? 'double' : '');
+    this._popupAt(_worldHit, `+${points}${clean ? '<small>Mazal!</small>' : ''}`, points > 1 ? 'double' : '');
     this._lightCandle();
   }
 
@@ -559,7 +559,7 @@ export class Game {
     if (label && this.state === GameState.PLAYING) {
       _worldHit.copy(thrown.body.position);
       _worldHit.y += 0.4;
-      this._popupAt(_worldHit, 'Miss', 'miss');
+      this._popupAt(_worldHit, 'OY!', 'miss');
     }
   }
 
