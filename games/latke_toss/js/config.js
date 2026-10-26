@@ -10,8 +10,8 @@ export const ROUND = {
   readySeconds: 1.4,
   // Time between the buzzer and the game-over panel, so in-flight effects can finish.
   gameOverDelaySeconds: 1.3,
-  // Delay before a fresh latke appears after the previous throw resolves.
-  respawnDelaySeconds: 0.45,
+  // Delay after a throw before the next latke appears on the plate.
+  respawnDelaySeconds: 0.3,
 };
 
 export const PHYSICS = {

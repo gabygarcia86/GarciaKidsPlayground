@@ -209,8 +209,7 @@ export class Game {
     this.scores = new ScoreStore();
 
     this.thrown = Array.from({ length: this.pool.all.length }, () => new ThrownLatke());
-    this.current = null; // latke on the plate (state AIMING) or null while a throw is in flight
-    this.inFlight = null; // the unresolved throw that blocks the next one
+    this.current = null; // latke on the plate (state AIMING) or null until the next one spawns
 
     this.state = GameState.MENU;
     this.pausedFrom = null;
@@ -234,7 +233,7 @@ export class Game {
     this.potCurrent = new THREE.Vector3();
 
     this.aimController = new AimController(gameScene.renderer.domElement, this.camera, {
-      canStartAim: () => this.state === GameState.PLAYING && !!this.current && !this.inFlight,
+      canStartAim: () => this.state === GameState.PLAYING && !!this.current,
       getLatkePosition: () => (this.current ? this.current.mesh.position : null),
       onAimStart: (aim) => this._onAimStart(aim),
       onAimChange: (aim) => this._onAimChange(aim),
@@ -385,7 +384,6 @@ export class Game {
     for (const thrown of this.thrown) this._retire(thrown);
     this.pool.releaseAll();
     this.current = null;
-    this.inFlight = null;
     this.effects.clear();
     this.gelt.clear();
     this.gameScene.resetDreidels();
@@ -423,7 +421,7 @@ export class Game {
       // Pool exhausted: recycle the oldest resolved latke that is still fading out.
       let oldest = null;
       for (const thrown of this.thrown) {
-        if (thrown.active && thrown !== this.inFlight && (!oldest || thrown.timer > oldest.timer)) oldest = thrown;
+        if (thrown.active && thrown.body.state !== LatkeState.AIRBORNE && (!oldest || thrown.timer > oldest.timer)) oldest = thrown;
       }
       if (!oldest) return;
       this._retire(oldest);
@@ -460,7 +458,6 @@ export class Game {
     }
     thrown.mesh = null;
     if (this.current === thrown) this.current = null;
-    if (this.inFlight === thrown) this.inFlight = null;
   }
 
   _onAimStart(aim) {
@@ -503,8 +500,9 @@ export class Game {
     body.angularVelocity.addScaledVector(_up, (Math.random() - 0.5) * 5);
     body.angularVelocity.addScaledVector(_launchHeading, (Math.random() - 0.5) * 2.4);
 
+    // The next latke arrives shortly after launch, without waiting for this one to land.
     this.current = null;
-    this.inFlight = thrown;
+    this.respawnTimer = ROUND.respawnDelaySeconds;
     this.hasThrown = true;
     this.ui.fadeHint();
     this.audio.play('launch');
@@ -513,10 +511,6 @@ export class Game {
   _resolve(thrown, state) {
     thrown.body.state = state;
     thrown.timer = 0;
-    if (this.inFlight === thrown) {
-      this.inFlight = null;
-      if (this.state === GameState.PLAYING) this.respawnTimer = ROUND.respawnDelaySeconds;
-    }
   }
 
   _registerHit(thrown, localHit) {
@@ -649,7 +643,7 @@ export class Game {
     }
     if (potHit === CollisionResult.ENTERED) {
       // Dropped in after the buzzer (or after already missing): sink it without scoring.
-      if (this.inFlight === thrown) this._registerMiss(thrown, false);
+      if (body.state === LatkeState.AIRBORNE) this._registerMiss(thrown, false);
       body.state = LatkeState.SUCCESS;
       this._startFrying(thrown, _localHit);
       return;
@@ -782,9 +776,11 @@ export class Game {
         this.lastTickSecond = second;
         this.audio.play('tick');
       }
-      if (this.respawnTimer > 0) {
-        this.respawnTimer -= dt;
-        if (this.respawnTimer <= 0 && !this.current && !this.inFlight) this._spawnLatke();
+      if (this.respawnTimer >= 0) {
+        // Clamped at 0 so spawning retries each frame if every latke is still airborne.
+        this.respawnTimer = Math.max(0, this.respawnTimer - dt);
+        if (this.respawnTimer === 0 && !this.current) this._spawnLatke();
+        if (this.current) this.respawnTimer = -1;
       }
     } else if (this.state === GameState.GAME_OVER && this.gameOverTimer > 0) {
       this.gameOverTimer -= dt;
